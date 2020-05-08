@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis API documentation</title>
-<meta name="description" content="Code originally developed by Jesus Vergara Temprado and Kirsty Pringle …" />
+<title>AerVis.L0 API documentation</title>
+<meta name="description" content="The First Level of the AerVis code …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,57 +17,54 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>AerVis</code></h1>
+<h1 class="title">Module <code>AerVis.L0</code></h1>
 </header>
 <section id="section-intro">
-<p>Code originally developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>Adapted by Daniel Ellis</p>
-<p>eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-d.ellis@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) |
-University of Leeds 2016</p>
+<p>The First Level of the AerVis code.</p>
+<p>This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).</p>
+<p>UKCA format is generally in the form of <code>&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp</code>.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-Code originally developed by Jesus Vergara Temprado and Kirsty Pringle
+<pre><code class="python">&#39;&#39;&#39;
+The First Level of the AerVis code.
 
-Adapted by Daniel Ellis
+This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).
+
+UKCA format is generally in the form of `&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp`.
+
+&#39;&#39;&#39;
+
+#glob imports
+import sys,time,iris,datetime,getpass,os
+import numpy as np
+from glob import glob
+
+#lib imports
+from .ppread import *
+from ..variable_dict import *
 
 
-eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-d.ellis@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) |
-University of Leeds 2016
-&#34;&#34;&#34;
+__all__ = [&#39;__OUTPUT_DIR__&#39;,&#39;__OROGRAPY__&#39;]
 
 
-from .variable_dict import *
-from . import L0</code></pre>
+__OROGRAPY__ = os.getenv(&#39;OROGRAPHY&#39;,os.getcwd()+&#39;/n96_hadgem1_qrparm.orog_new.pp&#39;)
+__OUTPUT_DIR__ = os.getenv(&#39;OUTPUTS&#39;,os.getcwd()+&#39;/outputs&#39;)
+#print(sys.argv,os.getcwd(),&#39;dsf&#39;,__file__)
+#os.getcwd()+
+
+try:os.mkdir(__OUTPUT_DIR__)
+except PermissionError: sys.exit(&#39;You do not have permissions to write in: &#39;+ __OUPUT_DIR__+&#39;. Exectured from: &#39;+ os.cwd())
+except OSError:None</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></dt>
+<dt><code class="name"><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></dt>
 <dd>
-<div class="desc"><p>The First Level of the AerVis code …</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></dt>
-<dd>
-<div class="desc"><p>Global dictionary for AerVis
-This contains the default locations of files required by the code.
-These may be overwritten using a config file.</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></dt>
-<dd>
-<div class="desc"><p>Variable Dictionary files</p></div>
+<div class="desc"><p>Tools to read a number of pp files.</p></div>
 </dd>
 </dl>
 </section>
@@ -84,11 +81,14 @@ These may be overwritten using a config file.</p></div>
 <ul></ul>
 </div>
 <ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="AerVis" href="../index.html">AerVis</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></li>
-<li><code><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></li>
-<li><code><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></li>
+<li><code><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></li>
 </ul>
 </li>
 </ul>

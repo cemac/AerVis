@@ -10,11 +10,9 @@ from scipy.io import netcdf
 from glob import glob
 from AerVis.variable_dict import *
 
-import iris
 
-
-__OROGRAPY__ = '../n96_hadgem1_qrparm.orog_new.pp'
-__OUTPUT_DIR__ = '../outputs'
+__OROGRAPY__ = os.getenv('OROGRAPHY','../n96_hadgem1_qrparm.orog_new.pp')
+__OUTPUT_DIR__ = os.getenv('OUTPUTS','../outputs')
 #os.getcwd()+
 
 try:os.mkdir(__OUTPUT_DIR__)
@@ -43,6 +41,11 @@ lat,lon = [0.0,0.0]
 cubes=iris.load([__OROGRAPY__,__FILE__])
 
 
+'''
+Memory consumption:
+4 pp files 500mb each ~2GB
+500mb in memory python read
+1.54GB .nc file compression.
 
 
 def pp2nc_single_var_ts(cube,stash_list=False):
@@ -102,7 +105,7 @@ def pp2nc_single_var_ts(cube,stash_list=False):
                 cube_single_t=cube.extract(iris.Constraint(time=time))
             except:
                 '''
-                Is this the correct action on failure - .extract documentation not found - dan
+                Is this the correct action on failure - .extract documentation not found - de
                 '''
                 print("Cannot extract cube ",cube.long_name)
                 print("Dimensions ",cube.shape)

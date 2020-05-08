@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis API documentation</title>
-<meta name="description" content="Code originally developed by Jesus Vergara Temprado and Kirsty Pringle …" />
+<title>AerVis.L0.ppread API documentation</title>
+<meta name="description" content="Tools to read a number of pp files." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,63 +17,114 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>AerVis</code></h1>
+<h1 class="title">Module <code>AerVis.L0.ppread</code></h1>
 </header>
 <section id="section-intro">
-<p>Code originally developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>Adapted by Daniel Ellis</p>
-<p>eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-d.ellis@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) |
-University of Leeds 2016</p>
+<p>Tools to read a number of pp files.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-Code originally developed by Jesus Vergara Temprado and Kirsty Pringle
+<pre><code class="python">&#39;&#39;&#39;
+Tools to read a number of pp files.
+&#39;&#39;&#39;
 
-Adapted by Daniel Ellis
+import iris,glob
+
+def get_names(name:str, path: str=&#39;./&#39;):
+    &#39;&#39;&#39;
+    glob match of relevant files.
+    Searches for the format &lt;name&gt;.pn&lt;date&gt;.pp
+    &#39;&#39;&#39;
+    if path[-1]!=&#39;/&#39;: path+=&#39;/&#39;
+    return glob.glob(path+name+&#39;.pn*.pp&#39;)
 
 
-eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-d.ellis@leeds.ac.uk
 
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) |
-University of Leeds 2016
-&#34;&#34;&#34;
+def read_all(names: list, orography:str=False, savename: str=False):
+    &#39;&#39;&#39;
+    A funciton that can read all pp files into memory at once
 
+    If savenc is given, the concatenated file is saved with the name proided and the &#39;.nc&#39; suffix appended.
 
-from .variable_dict import *
-from . import L0</code></pre>
+    Names can be a list of files or a single element list containing a wildcard match (`myfile/pn*.pp`).
+    &#39;&#39;&#39;
+
+    if orography: files = [orography]
+    else: files=[]
+
+    files.extend(names)
+
+    data = iris.load(files)
+
+    if savename:
+        print(savename,&#39;\nsaving :&#39;,files)
+        iris.save(data,savename.strip(&#39;.nc&#39;)+&#39;.nc&#39;) #default is netcdf4
+
+    return data</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></dt>
+<dt id="AerVis.L0.ppread.get_names"><code class="name flex">
+<span>def <span class="ident">get_names</span></span>(<span>name: str, path: str = './')</span>
+</code></dt>
 <dd>
-<div class="desc"><p>The First Level of the AerVis code …</p></div>
+<div class="desc"><p>glob match of relevant files.
+Searches for the format <name>.pn<date>.pp</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_names(name:str, path: str=&#39;./&#39;):
+    &#39;&#39;&#39;
+    glob match of relevant files.
+    Searches for the format &lt;name&gt;.pn&lt;date&gt;.pp
+    &#39;&#39;&#39;
+    if path[-1]!=&#39;/&#39;: path+=&#39;/&#39;
+    return glob.glob(path+name+&#39;.pn*.pp&#39;)</code></pre>
+</details>
 </dd>
-<dt><code class="name"><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></dt>
+<dt id="AerVis.L0.ppread.read_all"><code class="name flex">
+<span>def <span class="ident">read_all</span></span>(<span>names: list, orography: str = False, savename: str = False)</span>
+</code></dt>
 <dd>
-<div class="desc"><p>Global dictionary for AerVis
-This contains the default locations of files required by the code.
-These may be overwritten using a config file.</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></dt>
-<dd>
-<div class="desc"><p>Variable Dictionary files</p></div>
+<div class="desc"><p>A funciton that can read all pp files into memory at once</p>
+<p>If savenc is given, the concatenated file is saved with the name proided and the '.nc' suffix appended.</p>
+<p>Names can be a list of files or a single element list containing a wildcard match (<code>myfile/pn*.pp</code>).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_all(names: list, orography:str=False, savename: str=False):
+    &#39;&#39;&#39;
+    A funciton that can read all pp files into memory at once
+
+    If savenc is given, the concatenated file is saved with the name proided and the &#39;.nc&#39; suffix appended.
+
+    Names can be a list of files or a single element list containing a wildcard match (`myfile/pn*.pp`).
+    &#39;&#39;&#39;
+
+    if orography: files = [orography]
+    else: files=[]
+
+    files.extend(names)
+
+    data = iris.load(files)
+
+    if savename:
+        print(savename,&#39;\nsaving :&#39;,files)
+        iris.save(data,savename.strip(&#39;.nc&#39;)+&#39;.nc&#39;) #default is netcdf4
+
+    return data</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -84,11 +135,15 @@ These may be overwritten using a config file.</p></div>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></li>
-<li><code><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></li>
-<li><code><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></li>
+<li><code><a title="AerVis.L0" href="index.html">AerVis.L0</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="AerVis.L0.ppread.get_names" href="#AerVis.L0.ppread.get_names">get_names</a></code></li>
+<li><code><a title="AerVis.L0.ppread.read_all" href="#AerVis.L0.ppread.read_all">read_all</a></code></li>
 </ul>
 </li>
 </ul>
