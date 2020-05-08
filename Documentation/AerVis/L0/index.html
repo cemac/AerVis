@@ -24,14 +24,19 @@
 <p>This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).</p>
 <p>UKCA format is generally in the form of <code>&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp</code>.</p>
 <p>To run <code>python -m AerVis.L0 &lt;args&gt;</code></p>
-<p>To run interactively:</p>
-<p>```
-import airvis</p>
-<p># update variables (e.g. rotate_cube)
-airvis.L0.rotate_cube = True</p>
-<p># run
-airvis.L0.run('UKCArun','./runs/')
-```</p>
+<p>To run interactively:
+<code></p>
+<pre><code> import airvis
+
+ # update variables (e.g. rotate_cube)
+ airvis.L0.rotate_cube = True
+ airvis.L0.lat=10
+ airvis.L0.lon=29
+
+ # run
+ airvis.L0.run('UKCArun','./runs/')
+</code></pre>
+<p></code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -46,17 +51,18 @@ UKCA format is generally in the form of `&lt;filename&gt;.pn&lt;daily|monthly|ye
 To run `python -m AerVis.L0 &lt;args&gt;`
 
  To run interactively:
+&lt;code&gt;
 
- ```
- import airvis
+     import airvis
 
- # update variables (e.g. rotate_cube)
- airvis.L0.rotate_cube = True
+     # update variables (e.g. rotate_cube)
+     airvis.L0.rotate_cube = True
+     airvis.L0.lat=10
+     airvis.L0.lon=29
 
- # run
- airvis.L0.run(&#39;UKCArun&#39;,&#39;./runs/&#39;)
-```
-
+     # run
+     airvis.L0.run(&#39;UKCArun&#39;,&#39;./runs/&#39;)
+ &lt;/code&gt;
 &#39;&#39;&#39;
 
 #glob imports
@@ -69,7 +75,7 @@ from .ppread import *
 from ..variable_dict import *
 
 
-__all__ = [&#39;__OUTPUT_DIR__&#39;,&#39;__OROGRAPY__&#39;]
+__all__ = &#39;__OUTPUT_DIR__ __OROGRAPY__ rotate_cube lat lon run&#39;.split()
 
 
 __OROGRAPY__ = os.getenv(&#39;OROGRAPHY&#39;,os.getcwd()+&#39;/n96_hadgem1_qrparm.orog_new.pp&#39;)
@@ -82,7 +88,9 @@ except PermissionError: sys.exit(&#39;You do not have permissions to write in: &
 except OSError:None
 
 rotate_cube=False
+&#39;&#39;&#39; rotate the variable coordinates by the values of lat and lon within the L0 module&#39;&#39;&#39;
 lat,lon = [0.0,0.0]
+&#39;&#39;&#39; lat and lon variable values &#39;&#39;&#39;
 
 def run(name:str,loc:str=&#39;./&#39;):
     &#39;&#39;&#39;
@@ -111,8 +119,44 @@ def run(name:str,loc:str=&#39;./&#39;):
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="AerVis.L0.rotate_cube"><code class="name">var <span class="ident">rotate_cube</span></code></dt>
+<dd>
+<div class="desc"><p>rotate the variable coordinates by the values of lat and lon within the L0 module</p></div>
+</dd>
+</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="AerVis.L0.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Default L0 run script for manual initiation, or being run as a module</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;):
+    &#39;&#39;&#39;
+    Default L0 run script for manual initiation, or being run as a module
+    &#39;&#39;&#39;
+
+    from .pprun import read_all,get_names
+
+    # for __FILE__ in files
+    __FILE__ = get_names(name,path=loc)
+    __origin__ = name
+
+
+
+
+    cubes=iris.load([__OROGRAPY__,__FILE__])</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -131,6 +175,16 @@ def run(name:str,loc:str=&#39;./&#39;):
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="AerVis.L0.rotate_cube" href="#AerVis.L0.rotate_cube">rotate_cube</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="AerVis.L0.run" href="#AerVis.L0.run">run</a></code></li>
 </ul>
 </li>
 </ul>

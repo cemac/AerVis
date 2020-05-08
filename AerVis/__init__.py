@@ -1,16 +1,18 @@
 """
-Code originally developed by Jesus Vergara Temprado and Kirsty Pringle
+Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle
 
-Adapted by Daniel Ellis
+Improvements and creation of this library by Daniel Ellis.
 
 
 eejvt@leeds.ac.uk |
 K.Pringle@leeds.ac.uk |
-d.ellis@leeds.ac.uk
+D.Ellis@leeds.ac.uk
 
 Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) |
-University of Leeds 2016
+Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
+University of Leeds 2016-2020+
+
+
 """
 
 

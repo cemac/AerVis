@@ -8,17 +8,18 @@ UKCA format is generally in the form of `<filename>.pn<daily|monthly|yearly avar
 To run `python -m AerVis.L0 <args>`
 
  To run interactively:
+<code>
 
- ```
- import airvis
+     import airvis
 
- # update variables (e.g. rotate_cube)
- airvis.L0.rotate_cube = True
+     # update variables (e.g. rotate_cube)
+     airvis.L0.rotate_cube = True
+     airvis.L0.lat=10
+     airvis.L0.lon=29
 
- # run
- airvis.L0.run('UKCArun','./runs/')
-```
-
+     # run
+     airvis.L0.run('UKCArun','./runs/')
+ </code>
 '''
 
 #glob imports
@@ -31,7 +32,7 @@ from .ppread import *
 from ..variable_dict import *
 
 
-__all__ = ['__OUTPUT_DIR__','__OROGRAPY__']
+__all__ = '__OUTPUT_DIR__ __OROGRAPY__ rotate_cube lat lon run'.split()
 
 
 __OROGRAPY__ = os.getenv('OROGRAPHY',os.getcwd()+'/n96_hadgem1_qrparm.orog_new.pp')
@@ -44,7 +45,9 @@ except PermissionError: sys.exit('You do not have permissions to write in: '+ __
 except OSError:None
 
 rotate_cube=False
+''' rotate the variable coordinates by the values of lat and lon within the L0 module'''
 lat,lon = [0.0,0.0]
+''' lat and lon variable values '''
 
 def run(name:str,loc:str='./'):
     '''
