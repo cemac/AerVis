@@ -4,6 +4,9 @@ Tools to read a number of pp files.
 
 import iris,glob
 
+__all__ = 'get_names read_all'.split()
+
+
 def get_names(name:str, path: str='./'):
     '''
     glob match of relevant files.

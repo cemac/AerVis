@@ -23,6 +23,15 @@
 <p>The First Level of the AerVis code.</p>
 <p>This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).</p>
 <p>UKCA format is generally in the form of <code>&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp</code>.</p>
+<p>To run <code>python -m AerVis.L0 &lt;args&gt;</code></p>
+<p>To run interactively:</p>
+<p>```
+import airvis</p>
+<p># update variables (e.g. rotate_cube)
+airvis.L0.rotate_cube = True</p>
+<p># run
+airvis.L0.run('UKCArun','./runs/')
+```</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -33,6 +42,20 @@ The First Level of the AerVis code.
 This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).
 
 UKCA format is generally in the form of `&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp`.
+
+To run `python -m AerVis.L0 &lt;args&gt;`
+
+ To run interactively:
+
+ ```
+ import airvis
+
+ # update variables (e.g. rotate_cube)
+ airvis.L0.rotate_cube = True
+
+ # run
+ airvis.L0.run(&#39;UKCArun&#39;,&#39;./runs/&#39;)
+```
 
 &#39;&#39;&#39;
 
@@ -56,7 +79,26 @@ __OUTPUT_DIR__ = os.getenv(&#39;OUTPUTS&#39;,os.getcwd()+&#39;/outputs&#39;)
 
 try:os.mkdir(__OUTPUT_DIR__)
 except PermissionError: sys.exit(&#39;You do not have permissions to write in: &#39;+ __OUPUT_DIR__+&#39;. Exectured from: &#39;+ os.cwd())
-except OSError:None</code></pre>
+except OSError:None
+
+rotate_cube=False
+lat,lon = [0.0,0.0]
+
+def run(name:str,loc:str=&#39;./&#39;):
+    &#39;&#39;&#39;
+    Default L0 run script for manual initiation, or being run as a module
+    &#39;&#39;&#39;
+
+    from .pprun import read_all,get_names
+
+    # for __FILE__ in files
+    __FILE__ = get_names(name,path=loc)
+    __origin__ = name
+
+
+
+
+    cubes=iris.load([__OROGRAPY__,__FILE__])</code></pre>
 </details>
 </section>
 <section>
