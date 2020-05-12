@@ -46,7 +46,7 @@ Memory consumption:
 4 pp files 500mb each ~2GB
 500mb in memory python read
 1.54GB .nc file compression.
-
+'''
 
 def pp2nc_single_var_ts(cube,stash_list=False):
     '''
@@ -63,6 +63,7 @@ def pp2nc_single_var_ts(cube,stash_list=False):
 
     if stash_list: # if a specified selection of stash codes is given use those
         if stash_code not in stash_list: continue
+
 
 
     stashcodes.add(stash_code)
@@ -166,6 +167,10 @@ def join_variables(stash_list,step_folders):
 
 
             cube_list=iris.load(file_name)
+
+
+            #https://scitools.org.uk/iris/docs/latest/userguide/merge_and_concat.html
+
 
             cube_list_concatenated=cube_list.concatenate()[0]
 

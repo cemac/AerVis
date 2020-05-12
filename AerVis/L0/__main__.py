@@ -1,2 +1,4 @@
 from .__init__ import *
-print(__OROGRAPY__)
+
+z=run('bk417a')
+print(z)

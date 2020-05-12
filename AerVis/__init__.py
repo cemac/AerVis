@@ -1,7 +1,7 @@
 """
 Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle
 
-Improvements and creation of this library by Daniel Ellis.
+Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.
 
 
 eejvt@leeds.ac.uk |
