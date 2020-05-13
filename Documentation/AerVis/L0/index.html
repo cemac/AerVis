@@ -23,7 +23,7 @@
 <p>The First Level of the AerVis code.</p>
 <p>This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).</p>
 <p>UKCA format is generally in the form of <code>&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp</code>.</p>
-<p>To run <code>python -m AerVis.L0 &lt;args&gt;</code></p>
+<p>To run the module use <code>python -m AerVis.L0 &lt;args&gt;</code></p>
 <p>To run interactively:
 <code></p>
 <pre><code> import airvis
@@ -37,6 +37,9 @@
  airvis.L0.run('UKCArun','./runs/')
 </code></pre>
 <p></code></p>
+<p>Notes:
+Speed is lost on IO, we want to minimise the amount of file reading and writing. LO functions have been concatenated.</p>
+<p>Iris does not hold read files in memory, and can read from several at the same time using the netCDF or pp binary formats.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -48,7 +51,7 @@ This in essence perfoms a level of concatenation of the pp output of a model run
 
 UKCA format is generally in the form of `&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp`.
 
-To run `python -m AerVis.L0 &lt;args&gt;`
+To run the module use `python -m AerVis.L0 &lt;args&gt;`
 
  To run interactively:
 &lt;code&gt;
@@ -63,50 +66,118 @@ To run `python -m AerVis.L0 &lt;args&gt;`
      # run
      airvis.L0.run(&#39;UKCArun&#39;,&#39;./runs/&#39;)
  &lt;/code&gt;
+
+Notes:
+Speed is lost on IO, we want to minimise the amount of file reading and writing. LO functions have been concatenated.
+
+Iris does not hold read files in memory, and can read from several at the same time using the netCDF or pp binary formats.
+
+
 &#39;&#39;&#39;
 
+
+
 #glob imports
-import sys,time,iris,datetime,getpass,os
+import sys,time,iris,datetime,getpass,os,xarray
 import numpy as np
 from glob import glob
+from functools import partial
+import multiprocessing as mp
 
 #lib imports
 from .ppread import *
 from ..variable_dict import *
+from .process_cube import *
+from ..util import chunk
 
 
-__all__ = &#39;__OUTPUT_DIR__ __OROGRAPY__ rotate_cube lat lon run&#39;.split()
+__all__ = &#39;__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run&#39;.split()
 
 
 __OROGRAPY__ = os.getenv(&#39;OROGRAPHY&#39;,os.getcwd()+&#39;/n96_hadgem1_qrparm.orog_new.pp&#39;)
 __OUTPUT_DIR__ = os.getenv(&#39;OUTPUTS&#39;,os.getcwd()+&#39;/outputs&#39;)
 #print(sys.argv,os.getcwd(),&#39;dsf&#39;,__file__)
 #os.getcwd()+
-
 try:os.mkdir(__OUTPUT_DIR__)
 except PermissionError: sys.exit(&#39;You do not have permissions to write in: &#39;+ __OUPUT_DIR__+&#39;. Exectured from: &#39;+ os.cwd())
 except OSError:None
 
-rotate_cube=False
+
+
+rotate_lat,rotate_lon = [0.0,0.0]
 &#39;&#39;&#39; rotate the variable coordinates by the values of lat and lon within the L0 module&#39;&#39;&#39;
-lat,lon = [0.0,0.0]
-&#39;&#39;&#39; lat and lon variable values &#39;&#39;&#39;
 
-def run(name:str,loc:str=&#39;./&#39;):
+
+def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= False, group:str=False):
     &#39;&#39;&#39;
-    Default L0 run script for manual initiation, or being run as a module
+    Default L0 run script for manual initiation, or being run as a module.
+
+    Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
+
+    If a group path is provided - this stores the run as a group within a shared netCDF.
+
     &#39;&#39;&#39;
 
-    from .pprun import read_all,get_names
+
+    # from .ppread import read_all,get_names
 
     # for __FILE__ in files
-    __FILE__ = get_names(name,path=loc)
+    
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
+    
     __origin__ = name
 
+    __FILES__ = __FILES__[:2]
 
+    __FILES__.insert(0,__OROGRAPY__)
+    
+    
 
+    print (&#39;---- Loading %s ----&#39;%name)
+    start = time.perf_counter()
+    cubes=iris.load(__FILES__)
+    end = time.perf_counter() - start
+    print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
-    cubes=iris.load([__OROGRAPY__,__FILE__])</code></pre>
+        
+
+    pool = mp.Pool(ncpu)
+    kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
+     
+    cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes[:ncpu],ncpu)) ) 
+
+    while not cube_list.ready():
+
+        import sys
+
+        chars = &#34;.:&#39;:.&#34;
+
+        for c in chars:
+            sys.stdout.write(c)
+            sys.stdout.write(&#39;\b&#39;)
+            sys.stdout.flush()  
+            time.sleep(1)
+        
+        time.sleep(3)
+    
+    cube_list = np.array(cube_list.get())
+    
+    data = xarray.combine_by_coords(cube_list[:,0])
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,1].mean()
+    data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;])
+    
+    
+    if save_nc:
+        fn = &#39;./%s.nc&#39;%name
+        print(&#39;saving as &#39;)
+        data.to_netcdf(path=fn, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)
+    # group 
+    
+    return data
+    </code></pre>
 </details>
 </section>
 <section>
@@ -116,44 +187,97 @@ def run(name:str,loc:str=&#39;./&#39;):
 <dd>
 <div class="desc"><p>Tools to read a number of pp files.</p></div>
 </dd>
+<dt><code class="name"><a title="AerVis.L0.process_cube" href="process_cube.html">AerVis.L0.process_cube</a></code></dt>
+<dd>
+<div class="desc"><p>A function to convert a cube into an xarray object and save it in a single dataset</p></div>
+</dd>
 </dl>
 </section>
 <section>
-<h2 class="section-title" id="header-variables">Global variables</h2>
-<dl>
-<dt id="AerVis.L0.rotate_cube"><code class="name">var <span class="ident">rotate_cube</span></code></dt>
-<dd>
-<div class="desc"><p>rotate the variable coordinates by the values of lat and lon within the L0 module</p></div>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="AerVis.L0.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './')</span>
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, save_nc: bool = True, group: str = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Default L0 run script for manual initiation, or being run as a module</p></div>
+<div class="desc"><p>Default L0 run script for manual initiation, or being run as a module.</p>
+<p>Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)</p>
+<p>If a group path is provided - this stores the run as a group within a shared netCDF.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;):
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= False, group:str=False):
     &#39;&#39;&#39;
-    Default L0 run script for manual initiation, or being run as a module
+    Default L0 run script for manual initiation, or being run as a module.
+
+    Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
+
+    If a group path is provided - this stores the run as a group within a shared netCDF.
+
     &#39;&#39;&#39;
 
-    from .pprun import read_all,get_names
+
+    # from .ppread import read_all,get_names
 
     # for __FILE__ in files
-    __FILE__ = get_names(name,path=loc)
+    
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
+    
     __origin__ = name
 
+    __FILES__ = __FILES__[:2]
 
+    __FILES__.insert(0,__OROGRAPY__)
+    
+    
 
+    print (&#39;---- Loading %s ----&#39;%name)
+    start = time.perf_counter()
+    cubes=iris.load(__FILES__)
+    end = time.perf_counter() - start
+    print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
-    cubes=iris.load([__OROGRAPY__,__FILE__])</code></pre>
+        
+
+    pool = mp.Pool(ncpu)
+    kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
+     
+    cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes[:ncpu],ncpu)) ) 
+
+    while not cube_list.ready():
+
+        import sys
+
+        chars = &#34;.:&#39;:.&#34;
+
+        for c in chars:
+            sys.stdout.write(c)
+            sys.stdout.write(&#39;\b&#39;)
+            sys.stdout.flush()  
+            time.sleep(1)
+        
+        time.sleep(3)
+    
+    cube_list = np.array(cube_list.get())
+    
+    data = xarray.combine_by_coords(cube_list[:,0])
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,1].mean()
+    data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;])
+    
+    
+    if save_nc:
+        fn = &#39;./%s.nc&#39;%name
+        print(&#39;saving as &#39;)
+        data.to_netcdf(path=fn, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)
+    # group 
+    
+    return data</code></pre>
 </details>
 </dd>
 </dl>
@@ -175,11 +299,7 @@ def run(name:str,loc:str=&#39;./&#39;):
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-variables">Global variables</a></h3>
-<ul class="">
-<li><code><a title="AerVis.L0.rotate_cube" href="#AerVis.L0.rotate_cube">rotate_cube</a></code></li>
+<li><code><a title="AerVis.L0.process_cube" href="process_cube.html">AerVis.L0.process_cube</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>

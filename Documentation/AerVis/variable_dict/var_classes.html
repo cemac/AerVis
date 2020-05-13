@@ -31,6 +31,7 @@ Varialbe Calsses
 
 
 class Attributes:
+    &#39;&#39;&#39;An Attributes class&#39;&#39;&#39;
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
@@ -70,10 +71,14 @@ class VariableReference(dict):
     def __repr__(self):
          return self.classdescription
     def __str__(self):
-         return self.classdescription        
+         return  &#39;&#39;&#39;
+         AerVis Variable Attributes Class
+         --------------------------------
+         Number of entries: %d
+         &#39;&#39;&#39;%self.index
         
     def add(self,data):
-        
+        &#39;&#39;&#39;Add additional Data&#39;&#39;&#39;
         assert type(data) == dict
         
         # Add Mandatory keys as blanks
@@ -109,12 +114,13 @@ class VariableReference(dict):
 <span>(</span><span>**entries)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>An Attributes class</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Attributes:
+    &#39;&#39;&#39;An Attributes class&#39;&#39;&#39;
     def __init__(self, **entries):
         self.__dict__.update(entries)</code></pre>
 </details>
@@ -170,10 +176,14 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
     def __repr__(self):
          return self.classdescription
     def __str__(self):
-         return self.classdescription        
+         return  &#39;&#39;&#39;
+         AerVis Variable Attributes Class
+         --------------------------------
+         Number of entries: %d
+         &#39;&#39;&#39;%self.index
         
     def add(self,data):
-        
+        &#39;&#39;&#39;Add additional Data&#39;&#39;&#39;
         assert type(data) == dict
         
         # Add Mandatory keys as blanks
@@ -201,13 +211,13 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
 <span>def <span class="ident">add</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Add additional Data</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def add(self,data):
-    
+    &#39;&#39;&#39;Add additional Data&#39;&#39;&#39;
     assert type(data) == dict
     
     # Add Mandatory keys as blanks

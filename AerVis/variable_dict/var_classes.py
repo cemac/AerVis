@@ -4,6 +4,7 @@ Varialbe Calsses
 
 
 class Attributes:
+    '''An Attributes class'''
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
@@ -43,10 +44,14 @@ class VariableReference(dict):
     def __repr__(self):
          return self.classdescription
     def __str__(self):
-         return self.classdescription        
+         return  '''
+         AerVis Variable Attributes Class
+         --------------------------------
+         Number of entries: %d
+         '''%self.index
         
     def add(self,data):
-        
+        '''Add additional Data'''
         assert type(data) == dict
         
         # Add Mandatory keys as blanks

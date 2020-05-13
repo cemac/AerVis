@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis API documentation</title>
-<meta name="description" content="Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle …" />
+<title>AerVis.L0.process_cube API documentation</title>
+<meta name="description" content="A function to convert a cube into an xarray object and save it in a single dataset" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,76 +17,135 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>AerVis</code></h1>
+<h1 class="title">Module <code>AerVis.L0.process_cube</code></h1>
 </header>
 <section id="section-intro">
-<p>Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.</p>
-<p>eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-D.Ellis@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
-University of Leeds 2016-2020+</p>
+<p>A function to convert a cube into an xarray object and save it in a single dataset</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle
+<pre><code class="python">&#39;&#39;&#39;
+A function to convert a cube into an xarray object and save it in a single dataset
 
-Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis.
-
-
-eejvt@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-D.Ellis@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | &lt;a href=&#39;https://www.cemac.leeds.ac.uk&#39;&gt; CEMAC &lt;/a&gt;|
-University of Leeds 2016-2020+
+&#39;&#39;&#39;
+import xarray,time
 
 
-&#34;&#34;&#34;
 
 
-from .variable_dict import *
-from .datasetclass import *
-# 
-# d = AerData(&#39;bk417a&#39;)</code></pre>
+def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
+    &#39;&#39;&#39;
+    ---------------------------
+    The first Level 0 function.
+    ---------------------------
+
+    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+    &#39;&#39;&#39;
+    
+    dataset = False
+    
+    start = time.perf_counter()
+    
+    for cube in cubez:
+        
+        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
+
+        if stash_list: # if a specified selection of stash codes is given use those
+            if stash_code not in stash_list:
+                print( &#39;-- skipping -- :&#39;+ stash_code )
+                continue
+                
+        if hasattr(var_ref,stash_code):
+
+            if not isinstance(cube.long_name,str):
+                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
+
+                if not isinstance(cube._var_name,str):
+                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
+                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
+        
+            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
+            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
+        
+        
+        xr = xarray.DataArray.from_iris(cube)
+        
+        if dataset: dataset[stash_code]= xr
+        else: dataset = xr.to_dataset(name=stash_code) 
+        
+    avg_delta = (time.perf_counter()-start)/len(cubez)
+        
+    print(&#39;---- END L0 ---&#39;)
+    return dataset,avg_delta</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></dt>
+<dt id="AerVis.L0.process_cube.cube2xarr"><code class="name flex">
+<span>def <span class="ident">cube2xarr</span></span>(<span>cubez: str, var_ref, stash_list: list = False, rotate_lat: float = 0, rotate_lon: float = 0)</span>
+</code></dt>
 <dd>
-<div class="desc"><p>The First Level of the AerVis code …</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.datasetclass" href="datasetclass.html">AerVis.datasetclass</a></code></dt>
-<dd>
-<div class="desc"><p>The AerVis dataset class
-This contains functions regarding all Levels of the library code.</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></dt>
-<dd>
-<div class="desc"><p>Global dictionary for AerVis
-This contains the default locations of files required by the code.
-These may be overwritten using a config file.</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.util" href="util.html">AerVis.util</a></code></dt>
-<dd>
-<div class="desc"><p>A collection of functions useful for computation</p></div>
-</dd>
-<dt><code class="name"><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></dt>
-<dd>
-<div class="desc"><p>Variable Dictionary files</p></div>
+<div class="desc"><hr>
+<h2 id="the-first-level-0-function">The first Level 0 function.</h2>
+<p>This takes an iris cube - generated from a single pp file -
+and creates a separate netcdf file for each property and each timestep.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
+    &#39;&#39;&#39;
+    ---------------------------
+    The first Level 0 function.
+    ---------------------------
+
+    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+    &#39;&#39;&#39;
+    
+    dataset = False
+    
+    start = time.perf_counter()
+    
+    for cube in cubez:
+        
+        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
+
+        if stash_list: # if a specified selection of stash codes is given use those
+            if stash_code not in stash_list:
+                print( &#39;-- skipping -- :&#39;+ stash_code )
+                continue
+                
+        if hasattr(var_ref,stash_code):
+
+            if not isinstance(cube.long_name,str):
+                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
+
+                if not isinstance(cube._var_name,str):
+                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
+                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
+        
+            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
+            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
+        
+        
+        xr = xarray.DataArray.from_iris(cube)
+        
+        if dataset: dataset[stash_code]= xr
+        else: dataset = xr.to_dataset(name=stash_code) 
+        
+    avg_delta = (time.perf_counter()-start)/len(cubez)
+        
+    print(&#39;---- END L0 ---&#39;)
+    return dataset,avg_delta</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -97,13 +156,14 @@ These may be overwritten using a config file.</p></div>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis.L0" href="L0/index.html">AerVis.L0</a></code></li>
-<li><code><a title="AerVis.datasetclass" href="datasetclass.html">AerVis.datasetclass</a></code></li>
-<li><code><a title="AerVis.global_config" href="global_config.html">AerVis.global_config</a></code></li>
-<li><code><a title="AerVis.util" href="util.html">AerVis.util</a></code></li>
-<li><code><a title="AerVis.variable_dict" href="variable_dict/index.html">AerVis.variable_dict</a></code></li>
+<li><code><a title="AerVis.L0" href="index.html">AerVis.L0</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="AerVis.L0.process_cube.cube2xarr" href="#AerVis.L0.process_cube.cube2xarr">cube2xarr</a></code></li>
 </ul>
 </li>
 </ul>

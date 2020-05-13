@@ -17,4 +17,7 @@ University of Leeds 2016-2020+
 
 
 from .variable_dict import *
-from . import L0
+from .datasetclass import *
+
+d = AerData('bk417a')
+
