@@ -31,7 +31,7 @@ This contains functions regarding all Levels of the library code.</p>
 The AerVis dataset class
 This contains functions regarding all Levels of the library code. 
 &#39;&#39;&#39;
-import os,xarray
+import os,xarray,time
 
 class AerData():
     &#39;&#39;&#39;
@@ -55,15 +55,31 @@ class AerData():
         
         self.name = name.strip(&#39;.nc&#39;)
         
+        self.model = &#39;UKCA&#39;
+        
         self.nc_loc = &#39;%s%s.nc&#39;%(__LOC__,name)
         if os.path.exists(self.nc_loc):
             print (&#39;---- Loading File ---- : &#39;+self.nc_loc)
             self.exists = True
-            self.data = xarray.open_dataset(self.nc_loc) 
+            self.data = xarray.open_dataset(self.nc_loc)
 
         else:
             from . import L0
             self.data = L0.run(name, loc=__LOC__, ncpu = 4, __FILES__ = __FILES__)
+            # As this does not exist, create it 
+            print(&#39;saving - this is the slow bit&#39;)
+            
+            start = time.perf_counter()
+            self.data.compute()
+            self.data.to_netcdf(path=self.nc_loc, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)         
+            end = time.perf_counter() - start
+            print (&#39; %.2f minutes - written to %s&#39;%(end/60,self.nc_loc) )
+            
+            ## L1 append coords
+            from .L1.coords import coord_list
+            self.add_coords(coord_list)
+            print(&#39;coords loaded, but not added to netCDF file&#39;)
+             
         
         # APPENDFN
         self.files = self.data.attrs[&#39;files&#39;]
@@ -73,6 +89,9 @@ class AerData():
             else:
                 print(&#39;get files&#39;)
                 L0.get_names(name,path=__LOC__)
+
+
+        
         
         
         
@@ -108,7 +127,23 @@ class AerData():
          AerVis Variable Attributes Class
          --------------------------------
          &#39;&#39;&#39; + self.data.__str__()
-        </code></pre>
+         
+         
+    def add_coords(self,coordinates:list):
+        &#39;&#39;&#39;
+        A function to append additional coordinates to the DataSet
+        coord_list: nested *list* with  (value, standard_name, long_name, units) for each item
+        &#39;&#39;&#39;
+        from .L1 import coords 
+        self.data = coords.add(self.data,coordinates)
+        
+    def get_coords(self):
+        &#39;&#39;&#39; returns the dataset coordinates &#39;&#39;&#39;
+        return self.data.coords
+        
+    def get_attrs(self):
+        &#39;&#39;&#39; returns the dataset attributes &#39;&#39;&#39;
+        return self.data.attrs</code></pre>
 </details>
 </section>
 <section>
@@ -156,15 +191,31 @@ class AerData():
         
         self.name = name.strip(&#39;.nc&#39;)
         
+        self.model = &#39;UKCA&#39;
+        
         self.nc_loc = &#39;%s%s.nc&#39;%(__LOC__,name)
         if os.path.exists(self.nc_loc):
             print (&#39;---- Loading File ---- : &#39;+self.nc_loc)
             self.exists = True
-            self.data = xarray.open_dataset(self.nc_loc) 
+            self.data = xarray.open_dataset(self.nc_loc)
 
         else:
             from . import L0
             self.data = L0.run(name, loc=__LOC__, ncpu = 4, __FILES__ = __FILES__)
+            # As this does not exist, create it 
+            print(&#39;saving - this is the slow bit&#39;)
+            
+            start = time.perf_counter()
+            self.data.compute()
+            self.data.to_netcdf(path=self.nc_loc, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)         
+            end = time.perf_counter() - start
+            print (&#39; %.2f minutes - written to %s&#39;%(end/60,self.nc_loc) )
+            
+            ## L1 append coords
+            from .L1.coords import coord_list
+            self.add_coords(coord_list)
+            print(&#39;coords loaded, but not added to netCDF file&#39;)
+             
         
         # APPENDFN
         self.files = self.data.attrs[&#39;files&#39;]
@@ -174,6 +225,9 @@ class AerData():
             else:
                 print(&#39;get files&#39;)
                 L0.get_names(name,path=__LOC__)
+
+
+        
         
         
         
@@ -208,10 +262,75 @@ class AerData():
          return  &#39;&#39;&#39;
          AerVis Variable Attributes Class
          --------------------------------
-         &#39;&#39;&#39; + self.data.__str__()</code></pre>
+         &#39;&#39;&#39; + self.data.__str__()
+         
+         
+    def add_coords(self,coordinates:list):
+        &#39;&#39;&#39;
+        A function to append additional coordinates to the DataSet
+        coord_list: nested *list* with  (value, standard_name, long_name, units) for each item
+        &#39;&#39;&#39;
+        from .L1 import coords 
+        self.data = coords.add(self.data,coordinates)
+        
+    def get_coords(self):
+        &#39;&#39;&#39; returns the dataset coordinates &#39;&#39;&#39;
+        return self.data.coords
+        
+    def get_attrs(self):
+        &#39;&#39;&#39; returns the dataset attributes &#39;&#39;&#39;
+        return self.data.attrs</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
+<dt id="AerVis.datasetclass.AerData.add_coords"><code class="name flex">
+<span>def <span class="ident">add_coords</span></span>(<span>self, coordinates: list)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A function to append additional coordinates to the DataSet
+coord_list: nested <em>list</em> with
+(value, standard_name, long_name, units) for each item</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_coords(self,coordinates:list):
+    &#39;&#39;&#39;
+    A function to append additional coordinates to the DataSet
+    coord_list: nested *list* with  (value, standard_name, long_name, units) for each item
+    &#39;&#39;&#39;
+    from .L1 import coords 
+    self.data = coords.add(self.data,coordinates)</code></pre>
+</details>
+</dd>
+<dt id="AerVis.datasetclass.AerData.get_attrs"><code class="name flex">
+<span>def <span class="ident">get_attrs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>returns the dataset attributes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_attrs(self):
+    &#39;&#39;&#39; returns the dataset attributes &#39;&#39;&#39;
+    return self.data.attrs</code></pre>
+</details>
+</dd>
+<dt id="AerVis.datasetclass.AerData.get_coords"><code class="name flex">
+<span>def <span class="ident">get_coords</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>returns the dataset coordinates</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_coords(self):
+    &#39;&#39;&#39; returns the dataset coordinates &#39;&#39;&#39;
+    return self.data.coords</code></pre>
+</details>
+</dd>
 <dt id="AerVis.datasetclass.AerData.keys"><code class="name flex">
 <span>def <span class="ident">keys</span></span>(<span>self)</span>
 </code></dt>
@@ -246,6 +365,9 @@ class AerData():
 <li>
 <h4><code><a title="AerVis.datasetclass.AerData" href="#AerVis.datasetclass.AerData">AerData</a></code></h4>
 <ul class="">
+<li><code><a title="AerVis.datasetclass.AerData.add_coords" href="#AerVis.datasetclass.AerData.add_coords">add_coords</a></code></li>
+<li><code><a title="AerVis.datasetclass.AerData.get_attrs" href="#AerVis.datasetclass.AerData.get_attrs">get_attrs</a></code></li>
+<li><code><a title="AerVis.datasetclass.AerData.get_coords" href="#AerVis.datasetclass.AerData.get_coords">get_coords</a></code></li>
 <li><code><a title="AerVis.datasetclass.AerData.keys" href="#AerVis.datasetclass.AerData.keys">keys</a></code></li>
 </ul>
 </li>

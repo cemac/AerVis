@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis.L0.process_cube API documentation</title>
-<meta name="description" content="A function to convert a cube into an xarray object and save it in a single dataset" />
+<title>AerVis.L1 API documentation</title>
+<meta name="description" content="The L1 section of the AerVis code …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,136 +17,166 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>AerVis.L0.process_cube</code></h1>
+<h1 class="title">Module <code>AerVis.L1</code></h1>
 </header>
 <section id="section-intro">
-<p>A function to convert a cube into an xarray object and save it in a single dataset</p>
+<p>The L1 section of the AerVis code</p>
+<p>This section gathers information about the simulation runs</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
-A function to convert a cube into an xarray object and save it in a single dataset
+The L1 section of the AerVis code
 
+This section gathers information about the simulation runs
 &#39;&#39;&#39;
-import xarray,time
 
 
 
-
-def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
-    &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
-
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+def run(self):
+    
+    
+    # TEMPERATURE
+    
+    &#39;&#39;&#39; 
+    If data does not contain &#34;temperature&#34;
     &#39;&#39;&#39;
     
-    dataset = False
+    if self.model == &#39;tomcat&#39;:
+        self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
+    else: 
+        pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
+        
+        
+        
+        # AIR Pressure only needed if temperature missing
     
-    start = time.perf_counter()
-    
-    for cube in cubez:
-        
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
 
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
+    try:
+        self.air_pressure=self.data[&#39;m01s00i408&#39;][0]
+        if self.air_pressure.shape != self.temperature.shape:
+                    raise NameError(&#39;air pressure with different shape as potential_temperature&#39;)
 
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
+    except NameError:
+        &#39;&#39;&#39; this will fall over&#39;&#39;&#39; 
+        
+        # manually  
+        # air_pressure_nodim = self.data[&#39;m01s00i255&#39;][0]
+        # p_convert = iris.coords.AuxCoord(100000.0,
+        #                           long_name=&#39;convert_units&#39;,
+        #                           units=&#39;Pa&#39;)
+        
+        self.air_pressure=self.data[&#39;m01s00i255&#39;][0]*100000.0
 
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
+
+    # print &#39;potential temperature and air_pressure loaded&#39;
+    # p0 = iris.coords.AuxCoord(1000.0,
+    #                               long_name=&#39;reference_pressure&#39;,
+    #                               units=&#39;hPa&#39;)
+    # p0.convert_units(air_pressure.units)
+
+    &#39;&#39;&#39;
+    p0= 100000 # 1 hPa = 100 Pa 
+    Rd=287.05 # J/kg/K
+    cp=1005.46 # J/kg/K
+    &#39;&#39;&#39;
+    if self.model != &#39;tomcat&#39;:
+        self.temperature=pT*(air_pressure/100000.0)**(287.05/1005.46)
         
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
         
         
-        xr = xarray.DataArray.from_iris(cube)
         
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
-        
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
-    return dataset</code></pre>
+    &#39;&#39;&#39;
+    filter nbr 
+    filter mmr
+    &#39;&#39;&#39;</code></pre>
 </details>
 </section>
 <section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="AerVis.L1.addcubes" href="addcubes.html">AerVis.L1.addcubes</a></code></dt>
+<dd>
+<div class="desc"><p>Function for multiprocessing the creation of cubes</p></div>
+</dd>
+<dt><code class="name"><a title="AerVis.L1.coords" href="coords.html">AerVis.L1.coords</a></code></dt>
+<dd>
+<div class="desc"><p>A file containing all the coordinates which need to be added to a DataSet …</p></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="AerVis.L0.process_cube.cube2xarr"><code class="name flex">
-<span>def <span class="ident">cube2xarr</span></span>(<span>cubez: str, var_ref, stash_list: list = False, rotate_lat: float = 0, rotate_lon: float = 0)</span>
+<dt id="AerVis.L1.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><hr>
-<h2 id="the-first-level-0-function">The first Level 0 function.</h2>
-<p>This takes an iris cube - generated from a single pp file -
-and creates a separate netcdf file for each property and each timestep.</p></div>
+<div class="desc"><p>If data does not contain "temperature"</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
+<pre><code class="python">def run(self):
+    
+    
+    # TEMPERATURE
+    
+    &#39;&#39;&#39; 
+    If data does not contain &#34;temperature&#34;
     &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
+    
+    if self.model == &#39;tomcat&#39;:
+        self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
+    else: 
+        pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
+        
+        
+        
+        # AIR Pressure only needed if temperature missing
+    
 
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+    try:
+        self.air_pressure=self.data[&#39;m01s00i408&#39;][0]
+        if self.air_pressure.shape != self.temperature.shape:
+                    raise NameError(&#39;air pressure with different shape as potential_temperature&#39;)
+
+    except NameError:
+        &#39;&#39;&#39; this will fall over&#39;&#39;&#39; 
+        
+        # manually  
+        # air_pressure_nodim = self.data[&#39;m01s00i255&#39;][0]
+        # p_convert = iris.coords.AuxCoord(100000.0,
+        #                           long_name=&#39;convert_units&#39;,
+        #                           units=&#39;Pa&#39;)
+        
+        self.air_pressure=self.data[&#39;m01s00i255&#39;][0]*100000.0
+
+
+    # print &#39;potential temperature and air_pressure loaded&#39;
+    # p0 = iris.coords.AuxCoord(1000.0,
+    #                               long_name=&#39;reference_pressure&#39;,
+    #                               units=&#39;hPa&#39;)
+    # p0.convert_units(air_pressure.units)
+
     &#39;&#39;&#39;
-    
-    dataset = False
-    
-    start = time.perf_counter()
-    
-    for cube in cubez:
-        
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
-
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
-
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
-
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
-        
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
+    p0= 100000 # 1 hPa = 100 Pa 
+    Rd=287.05 # J/kg/K
+    cp=1005.46 # J/kg/K
+    &#39;&#39;&#39;
+    if self.model != &#39;tomcat&#39;:
+        self.temperature=pT*(air_pressure/100000.0)**(287.05/1005.46)
         
         
-        xr = xarray.DataArray.from_iris(cube)
         
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
         
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
-    return dataset</code></pre>
+    &#39;&#39;&#39;
+    filter nbr 
+    filter mmr
+    &#39;&#39;&#39;</code></pre>
 </details>
 </dd>
 </dl>
@@ -162,12 +192,18 @@ and creates a separate netcdf file for each property and each timestep.</p></div
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis.L0" href="index.html">AerVis.L0</a></code></li>
+<li><code><a title="AerVis" href="../index.html">AerVis</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="AerVis.L1.addcubes" href="addcubes.html">AerVis.L1.addcubes</a></code></li>
+<li><code><a title="AerVis.L1.coords" href="coords.html">AerVis.L1.coords</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="AerVis.L0.process_cube.cube2xarr" href="#AerVis.L0.process_cube.cube2xarr">cube2xarr</a></code></li>
+<li><code><a title="AerVis.L1.run" href="#AerVis.L1.run">run</a></code></li>
 </ul>
 </li>
 </ul>

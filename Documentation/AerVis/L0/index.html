@@ -108,27 +108,20 @@ rotate_lat,rotate_lon = [0.0,0.0]
 &#39;&#39;&#39; rotate the variable coordinates by the values of lat and lon within the L0 module&#39;&#39;&#39;
 
 
-def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= False, group:str=False):
+def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
     Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
-
-    If a group path is provided - this stores the run as a group within a shared netCDF.
 
     &#39;&#39;&#39;
 
 
     # from .ppread import read_all,get_names
 
-    # for __FILE__ in files
-    
-    if not __FILES__:__FILES__ = get_names(name,path=loc)
-    
     __origin__ = name
-
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
     __FILES__ = __FILES__[:2]
-
     __FILES__.insert(0,__OROGRAPY__)
     
     
@@ -139,41 +132,45 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= Fa
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
-        
 
-    pool = mp.Pool(ncpu)
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
-     
-    cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes[:ncpu],ncpu)) ) 
-
-    while not cube_list.ready():
-
-        import sys
-
-        chars = &#34;.:&#39;:.&#34;
-
-        for c in chars:
-            sys.stdout.write(c)
-            sys.stdout.write(&#39;\b&#39;)
-            sys.stdout.flush()  
-            time.sleep(1)
-        
-        time.sleep(3)
     
-    cube_list = np.array(cube_list.get())
     
-    data = xarray.combine_by_coords(cube_list[:,0])
-    data.attrs[&#39;iris_cube_delta&#39;] = end
-    data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,1].mean()
+    # 
+    # 
+    # pool = mp.Pool(ncpu)    
+    # 
+    # cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes,ncpu)) ) 
+    # 
+    # while not cube_list.ready():
+    # 
+    #     import sys
+    # 
+    #     chars = &#34;.:&#39;:.&#34;
+    # 
+    #     for c in chars:
+    #         sys.stdout.write(c)
+    #         sys.stdout.write(&#39;\b&#39;)
+    #         sys.stdout.flush()  
+    #         time.sleep(1)
+    # 
+    #     time.sleep(3)
+    # 
+    # cube_list = np.array(cube_list.get())
+    
+    # data = xarray.combine_by_coords(cube_list[:,0])
+    
+    ## GET DATASET - multiprocessing crashes read of file
+    data = cube2xarr(cubes, **kwargs)
+    
+    # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
     data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    total = time.perf_counter() - start
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;L0_delta&#39;] = total
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
     
-    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;])
-    
-    
-    if save_nc:
-        fn = &#39;./%s.nc&#39;%name
-        print(&#39;saving as &#39;)
-        data.to_netcdf(path=fn, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)
+        
     # group 
     
     return data
@@ -199,37 +196,29 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= Fa
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="AerVis.L0.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, save_nc: bool = True, group: str = False)</span>
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Default L0 run script for manual initiation, or being run as a module.</p>
-<p>Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)</p>
-<p>If a group path is provided - this stores the run as a group within a shared netCDF.</p></div>
+<p>Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= False, group:str=False):
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
     Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
-
-    If a group path is provided - this stores the run as a group within a shared netCDF.
 
     &#39;&#39;&#39;
 
 
     # from .ppread import read_all,get_names
 
-    # for __FILE__ in files
-    
-    if not __FILES__:__FILES__ = get_names(name,path=loc)
-    
     __origin__ = name
-
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
     __FILES__ = __FILES__[:2]
-
     __FILES__.insert(0,__OROGRAPY__)
     
     
@@ -240,41 +229,45 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,save_nc:bool=True,__FILES__= Fa
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
-        
 
-    pool = mp.Pool(ncpu)
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
-     
-    cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes[:ncpu],ncpu)) ) 
-
-    while not cube_list.ready():
-
-        import sys
-
-        chars = &#34;.:&#39;:.&#34;
-
-        for c in chars:
-            sys.stdout.write(c)
-            sys.stdout.write(&#39;\b&#39;)
-            sys.stdout.flush()  
-            time.sleep(1)
-        
-        time.sleep(3)
     
-    cube_list = np.array(cube_list.get())
     
-    data = xarray.combine_by_coords(cube_list[:,0])
-    data.attrs[&#39;iris_cube_delta&#39;] = end
-    data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,1].mean()
+    # 
+    # 
+    # pool = mp.Pool(ncpu)    
+    # 
+    # cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes,ncpu)) ) 
+    # 
+    # while not cube_list.ready():
+    # 
+    #     import sys
+    # 
+    #     chars = &#34;.:&#39;:.&#34;
+    # 
+    #     for c in chars:
+    #         sys.stdout.write(c)
+    #         sys.stdout.write(&#39;\b&#39;)
+    #         sys.stdout.flush()  
+    #         time.sleep(1)
+    # 
+    #     time.sleep(3)
+    # 
+    # cube_list = np.array(cube_list.get())
+    
+    # data = xarray.combine_by_coords(cube_list[:,0])
+    
+    ## GET DATASET - multiprocessing crashes read of file
+    data = cube2xarr(cubes, **kwargs)
+    
+    # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
     data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    total = time.perf_counter() - start
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;L0_delta&#39;] = total
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
     
-    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;])
-    
-    
-    if save_nc:
-        fn = &#39;./%s.nc&#39;%name
-        print(&#39;saving as &#39;)
-        data.to_netcdf(path=fn, mode=&#39;w&#39;, format=&#39;NETCDF4&#39;)
+        
     # group 
     
     return data</code></pre>

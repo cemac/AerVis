@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis.L0.process_cube API documentation</title>
-<meta name="description" content="A function to convert a cube into an xarray object and save it in a single dataset" />
+<title>AerVis.L1.coords API documentation</title>
+<meta name="description" content="A file containing all the coordinates which need to be added to a DataSet …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,69 +17,48 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>AerVis.L0.process_cube</code></h1>
+<h1 class="title">Module <code>AerVis.L1.coords</code></h1>
 </header>
 <section id="section-intro">
-<p>A function to convert a cube into an xarray object and save it in a single dataset</p>
+<p>A file containing all the coordinates which need to be added to a DataSet</p>
+<p>coord_list: nested <em>list</em> with
+(value, standard_name, long_name, units) for each item</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39;
-A function to convert a cube into an xarray object and save it in a single dataset
+<pre><code class="python">&#39;&#39;&#39; 
+A file containing all the coordinates which need to be added to a DataSet
+
+coord_list: nested *list* with  (value, standard_name, long_name, units) for each item
+
 
 &#39;&#39;&#39;
-import xarray,time
+
+__all__= &#39;coord_list add&#39;.split()
+
+coord_list = [
+# (1000.0,&#39;p0&#39;,&#39;reference_pressure&#39;,&#39;hPa&#39;)
+# (100000.0,&#39;p_convert&#39;,&#39;convert_units&#39;,&#39;Pa&#39;)
+(287.058,&#39;r_specific&#39;,&#39;R_specific&#39;,&#39;J-kilogram^-1-kelvin^-1&#39;),#J/(kg·K)
+  
+(28.991e-3,&#39;molar_mass_air&#39;,&#39;Molar mass of air&#39;,&#39;kilogram-mole^-1&#39;),#J/(kg·K)
+(6.022e23,&#39;avogadro&#39;,&#39;Avogadros number - particles per mol&#39;,&#39;mole^-1&#39;),#J/(kg·K)
+
+]
 
 
-
-
-def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
-    &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
-
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
-    &#39;&#39;&#39;
+def add(dataset ,coords:list=coord_list):
+    &#39;&#39;&#39; A function to add / update coordinates of a dataset &#39;&#39;&#39;
     
-    dataset = False
+    for c in coords:
+        dataset.coords[c[1]]=c[0]
+        dataset.coords[c[1]].attrs = {&#39;standard_name&#39;:c[2],&#39;units&#39;:c[3]}
+        
+    return dataset
     
-    start = time.perf_counter()
     
-    for cube in cubez:
-        
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
-
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
-
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
-
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
-        
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
-        
-        
-        xr = xarray.DataArray.from_iris(cube)
-        
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
-        
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
-    return dataset</code></pre>
+    </code></pre>
 </details>
 </section>
 <section>
@@ -89,63 +68,22 @@ def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotat
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="AerVis.L0.process_cube.cube2xarr"><code class="name flex">
-<span>def <span class="ident">cube2xarr</span></span>(<span>cubez: str, var_ref, stash_list: list = False, rotate_lat: float = 0, rotate_lon: float = 0)</span>
+<dt id="AerVis.L1.coords.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>dataset, coords: list = [(287.058, 'r_specific', 'R_specific', 'J-kilogram^-1-kelvin^-1'), (0.028991, 'molar_mass_air', 'Molar mass of air', 'kilogram-mole^-1'), (6.022e+23, 'avogadro', 'Avogadros number - particles per mol', 'mole^-1')])</span>
 </code></dt>
 <dd>
-<div class="desc"><hr>
-<h2 id="the-first-level-0-function">The first Level 0 function.</h2>
-<p>This takes an iris cube - generated from a single pp file -
-and creates a separate netcdf file for each property and each timestep.</p></div>
+<div class="desc"><p>A function to add / update coordinates of a dataset</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
-    &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
-
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
-    &#39;&#39;&#39;
+<pre><code class="python">def add(dataset ,coords:list=coord_list):
+    &#39;&#39;&#39; A function to add / update coordinates of a dataset &#39;&#39;&#39;
     
-    dataset = False
-    
-    start = time.perf_counter()
-    
-    for cube in cubez:
+    for c in coords:
+        dataset.coords[c[1]]=c[0]
+        dataset.coords[c[1]].attrs = {&#39;standard_name&#39;:c[2],&#39;units&#39;:c[3]}
         
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
-
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
-
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
-
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
-        
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
-        
-        
-        xr = xarray.DataArray.from_iris(cube)
-        
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
-        
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
     return dataset</code></pre>
 </details>
 </dd>
@@ -162,12 +100,12 @@ and creates a separate netcdf file for each property and each timestep.</p></div
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis.L0" href="index.html">AerVis.L0</a></code></li>
+<li><code><a title="AerVis.L1" href="index.html">AerVis.L1</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="AerVis.L0.process_cube.cube2xarr" href="#AerVis.L0.process_cube.cube2xarr">cube2xarr</a></code></li>
+<li><code><a title="AerVis.L1.coords.add" href="#AerVis.L1.coords.add">add</a></code></li>
 </ul>
 </li>
 </ul>

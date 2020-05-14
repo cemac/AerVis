@@ -27,8 +27,8 @@ def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotat
         if stash_list: # if a specified selection of stash codes is given use those
             if stash_code not in stash_list:
                 print( '-- skipping -- :'+ stash_code )
-                continue
-                
+                #continue
+                return 0,0,0
         if hasattr(var_ref,stash_code):
 
             if not isinstance(cube.long_name,str):
@@ -37,6 +37,7 @@ def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotat
                 if not isinstance(cube._var_name,str):
                     if not getattr(var_ref,stash_code)['short_name']=='':
                         cube._var_name=getattr(var_ref,stash_code)['short_name']
+                        
         
             if rotate_lat: cube.coord('grid_latitude').points=cube.coord('grid_latitude').points+lat
             if rotate_lon: cube.coord('grid_longitude').points=cube.coord('grid_longitude').points+lon+180
@@ -48,6 +49,7 @@ def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotat
         else: dataset = xr.to_dataset(name=stash_code) 
         
     avg_delta = (time.perf_counter()-start)/len(cubez)
+    dataset.attrs['avg_cube_delta']= avg_delta
         
     print('---- END L0 ---')
-    return dataset,avg_delta
+    return dataset

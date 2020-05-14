@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis.L0.process_cube API documentation</title>
-<meta name="description" content="A function to convert a cube into an xarray object and save it in a single dataset" />
+<title>AerVis.L1.addcubes API documentation</title>
+<meta name="description" content="Function for multiprocessing the creation of cubes" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,69 +17,45 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>AerVis.L0.process_cube</code></h1>
+<h1 class="title">Module <code>AerVis.L1.addcubes</code></h1>
 </header>
 <section id="section-intro">
-<p>A function to convert a cube into an xarray object and save it in a single dataset</p>
+<p>Function for multiprocessing the creation of cubes</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39;
-A function to convert a cube into an xarray object and save it in a single dataset
-
+<pre><code class="python">&#39;&#39;&#39; 
+Function for multiprocessing the creation of cubes
 &#39;&#39;&#39;
-import xarray,time
 
 
-
-
-def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
+## particulates
+def add_cube(info:dict):
     &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
-
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+    info - a dictionary of three values {name,longname,dataset,rval,cubes}
+    Rval #meters long_name=&#39;Radius for calculating PM2.5&#39;,
+    var_name=&#39;PM25&#39;
+    long_name=&#39;Mass_of_particules_smaller_than_a_diameter_of_2.5_um&#39;
+    cubes
     &#39;&#39;&#39;
-    
-    dataset = False
-    
-    start = time.perf_counter()
-    
-    for cube in cubez:
-        
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
+    locals().update(d)
 
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
+    dcubes_to_add_PM25=[]
+    #meters long_name=&#39;Radius for calculating PM2.5&#39;,
+    for mode_name in ims.mode_names:
+        #print mode_name
+        Mode_mass=mass_concentration_per_mode[&#39;mcon_&#39;+mode_name]
+        rbar=mode_radius[&#39;rad_&#39;+mode_name].data
+        sigma=ims.modal_attributes[mode_name].sigma
+        rbar_volume=rbar*np.exp(3.0*np.log(sigma)**2)
+        contribution_to_PM25=ukl.lognormal_cummulative(Mode_mass,r_125,rbar_volume,sigma)
+        cubes_to_add_PM25.append(contribution_to_PM25)
+    PM25=np.sum(cubes_to_add_PM25)
 
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
-
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
-        
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
-        
-        
-        xr = xarray.DataArray.from_iris(cube)
-        
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
-        
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
-    return dataset</code></pre>
+    save_cube(PM25)
+    
+    </code></pre>
 </details>
 </section>
 <section>
@@ -89,64 +65,42 @@ def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotat
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="AerVis.L0.process_cube.cube2xarr"><code class="name flex">
-<span>def <span class="ident">cube2xarr</span></span>(<span>cubez: str, var_ref, stash_list: list = False, rotate_lat: float = 0, rotate_lon: float = 0)</span>
+<dt id="AerVis.L1.addcubes.add_cube"><code class="name flex">
+<span>def <span class="ident">add_cube</span></span>(<span>info: dict)</span>
 </code></dt>
 <dd>
-<div class="desc"><hr>
-<h2 id="the-first-level-0-function">The first Level 0 function.</h2>
-<p>This takes an iris cube - generated from a single pp file -
-and creates a separate netcdf file for each property and each timestep.</p></div>
+<div class="desc"><p>info - a dictionary of three values {name,longname,dataset,rval,cubes}
+Rval #meters long_name='Radius for calculating PM2.5',
+var_name='PM25'
+long_name='Mass_of_particules_smaller_than_a_diameter_of_2.5_um'
+cubes</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cube2xarr(cubez:str,var_ref, stash_list:list=False,rotate_lat:float=0, rotate_lon:float=0):
+<pre><code class="python">def add_cube(info:dict):
     &#39;&#39;&#39;
-    ---------------------------
-    The first Level 0 function.
-    ---------------------------
-
-    This takes an iris cube - generated from a single pp file -  and creates a separate netcdf file for each property and each timestep.
+    info - a dictionary of three values {name,longname,dataset,rval,cubes}
+    Rval #meters long_name=&#39;Radius for calculating PM2.5&#39;,
+    var_name=&#39;PM25&#39;
+    long_name=&#39;Mass_of_particules_smaller_than_a_diameter_of_2.5_um&#39;
+    cubes
     &#39;&#39;&#39;
-    
-    dataset = False
-    
-    start = time.perf_counter()
-    
-    for cube in cubez:
-        
-        stash_code = str(cube.attributes[&#39;STASH&#39;]) # get __str__ from class
+    locals().update(d)
 
-        if stash_list: # if a specified selection of stash codes is given use those
-            if stash_code not in stash_list:
-                print( &#39;-- skipping -- :&#39;+ stash_code )
-                #continue
-                return 0,0,0
-        if hasattr(var_ref,stash_code):
+    dcubes_to_add_PM25=[]
+    #meters long_name=&#39;Radius for calculating PM2.5&#39;,
+    for mode_name in ims.mode_names:
+        #print mode_name
+        Mode_mass=mass_concentration_per_mode[&#39;mcon_&#39;+mode_name]
+        rbar=mode_radius[&#39;rad_&#39;+mode_name].data
+        sigma=ims.modal_attributes[mode_name].sigma
+        rbar_volume=rbar*np.exp(3.0*np.log(sigma)**2)
+        contribution_to_PM25=ukl.lognormal_cummulative(Mode_mass,r_125,rbar_volume,sigma)
+        cubes_to_add_PM25.append(contribution_to_PM25)
+    PM25=np.sum(cubes_to_add_PM25)
 
-            if not isinstance(cube.long_name,str):
-                cube.long_name=getattr(var_ref,stash_code)[&#39;long_name&#39;]
-
-                if not isinstance(cube._var_name,str):
-                    if not getattr(var_ref,stash_code)[&#39;short_name&#39;]==&#39;&#39;:
-                        cube._var_name=getattr(var_ref,stash_code)[&#39;short_name&#39;]
-                        
-        
-            if rotate_lat: cube.coord(&#39;grid_latitude&#39;).points=cube.coord(&#39;grid_latitude&#39;).points+lat
-            if rotate_lon: cube.coord(&#39;grid_longitude&#39;).points=cube.coord(&#39;grid_longitude&#39;).points+lon+180
-        
-        
-        xr = xarray.DataArray.from_iris(cube)
-        
-        if dataset: dataset[stash_code]= xr
-        else: dataset = xr.to_dataset(name=stash_code) 
-        
-    avg_delta = (time.perf_counter()-start)/len(cubez)
-    dataset.attrs[&#39;avg_cube_delta&#39;]= avg_delta
-        
-    print(&#39;---- END L0 ---&#39;)
-    return dataset</code></pre>
+    save_cube(PM25)</code></pre>
 </details>
 </dd>
 </dl>
@@ -162,12 +116,12 @@ and creates a separate netcdf file for each property and each timestep.</p></div
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis.L0" href="index.html">AerVis.L0</a></code></li>
+<li><code><a title="AerVis.L1" href="index.html">AerVis.L1</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="AerVis.L0.process_cube.cube2xarr" href="#AerVis.L0.process_cube.cube2xarr">cube2xarr</a></code></li>
+<li><code><a title="AerVis.L1.addcubes.add_cube" href="#AerVis.L1.addcubes.add_cube">add_cube</a></code></li>
 </ul>
 </li>
 </ul>
