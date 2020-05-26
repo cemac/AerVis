@@ -2,6 +2,7 @@
 Varialbe Calsses
 '''
 
+import dill
 
 class Attributes:
     '''An Attributes class'''
@@ -68,6 +69,35 @@ class VariableReference(dict):
         setattr(self, 'var_id_%i'%self.index, data)
         setattr(self, name ,getattr(self,  'var_id_%i'%self.index))
         setattr(self, code ,getattr(self,  'var_id_%i'%self.index))
+        
+        
+    def save(self,filename = False):
+        '''
+        A function to save the variable difference class 
+        
+        example usage:
+            var_ref.save('<usefulidentifier>.dl')
+        '''
+        assert type(filename) is str
+        dill.dump(self,open(filename,'wb'))
+        print('Variable Dictionary Saved as ',filename)
+        
+    def load(self,filename = False):
+        '''
+        A function to populate the variable difference class using a saved version
+        
+        example usage:
+            var_ref.load('<usefulidentifier>.dl')
+            
+            or 
+            
+            import dill 
+            dill.load(open(<filename.dl>,'rb'))  
+        '''
+        assert type(filename) is str
+        
+        self = dill.load(open(filename,'rb'))        
+        print('reloaded class information from ',filename)
         
     # def fromVarName(self,varstr):
     #     self.add(dict(( (i,globals()[i]) for i in varstr.split(','))) )

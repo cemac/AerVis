@@ -3,6 +3,11 @@ datetime
 scipy
 conda install -c scitools iris
 xarray
+dill
+
+
+
+
 
 panoply
 

@@ -32,7 +32,7 @@ Iris does not hold read files in memory, and can read from several at the same t
 
 
 #glob imports
-import sys,time,iris,datetime,getpass,os,xarray
+import sys,time,iris,datetime,getpass,os,xarray,dill
 import numpy as np
 from glob import glob
 from functools import partial
@@ -43,7 +43,7 @@ from .ppread import *
 from ..variable_dict import *
 from .process_cube import *
 from ..util import chunk
-
+from ..global_config import __FILE_STASHmaster__,,__FILE_mapping__,__FILE_STASH_From_UMUI__
 
 __all__ = '__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run'.split()
 
@@ -56,13 +56,15 @@ try:os.mkdir(__OUTPUT_DIR__)
 except PermissionError: sys.exit('You do not have permissions to write in: '+ __OUPUT_DIR__+'. Exectured from: '+ os.cwd())
 except OSError:None
 
-
-
 rotate_lat,rotate_lon = [0.0,0.0]
 ''' rotate the variable coordinates by the values of lat and lon within the L0 module'''
 
 
-def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False):
+
+
+
+
+def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
     '''
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -75,7 +77,7 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False):
 
     __origin__ = name
     if not __FILES__:__FILES__ = get_names(name,path=loc)
-    __FILES__ = __FILES__[:2]
+    # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
     
     
@@ -85,6 +87,16 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False):
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (' %.2f minutes: %d files %d cubes'%(end/60,len(__FILES__),len(cubes)))
+
+    
+    
+    
+    stashname = '_'.join(stash_master,stash_mapping,stash_umi)+'.dl'
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname,'rb'))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname)
 
 
     kwargs = {'var_ref':var_ref,'rotate_lat':rotate_lat, 'rotate_lon':rotate_lon}
@@ -115,6 +127,10 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False):
     # data = xarray.combine_by_coords(cube_list[:,0])
     
     ## GET DATASET - multiprocessing crashes read of file
+    
+    
+    
+    
     data = cube2xarr(cubes, **kwargs)
     
     # data.attrs['avg_cube_delta']= cube_list[:,2].mean()

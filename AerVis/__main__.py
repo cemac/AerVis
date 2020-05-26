@@ -1,2 +1,5 @@
 print('Welcome to AerVis')
-from . import __init__
+from . import *
+
+d = AerData('bk417a')
+
