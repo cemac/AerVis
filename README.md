@@ -4,7 +4,7 @@ UKCA_postproc python library
 ## Documentation
 <a href='https://wolfiex.github.io/AerVis/Documentation/AerVis/'> Click Here for Documentation</a>
 
-<a href='https://github.com/wolfiex/AerVis/wiki'> Or Here for the WIKI</a>
+<a href='https://github.com/wolfiex/AerVis/wiki'> Here for the WIKI</a>
 
 
 ## Install (not yet available)
