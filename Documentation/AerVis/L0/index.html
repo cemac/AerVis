@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis.L0 API documentation</title>
+<title>aervis.L0 API documentation</title>
 <meta name="description" content="The First Level of the AerVis code …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>AerVis.L0</code></h1>
+<h1 class="title">Module <code>aervis.L0</code></h1>
 </header>
 <section id="section-intro">
 <p>The First Level of the AerVis code.</p>
@@ -78,7 +78,7 @@ Iris does not hold read files in memory, and can read from several at the same t
 
 
 #glob imports
-import sys,time,iris,datetime,getpass,os,xarray
+import sys,time,iris,datetime,getpass,os,xarray,dill
 import numpy as np
 from glob import glob
 from functools import partial
@@ -89,7 +89,7 @@ from .ppread import *
 from ..variable_dict import *
 from .process_cube import *
 from ..util import chunk
-
+from ..global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
 
 __all__ = &#39;__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run&#39;.split()
 
@@ -102,13 +102,15 @@ try:os.mkdir(__OUTPUT_DIR__)
 except PermissionError: sys.exit(&#39;You do not have permissions to write in: &#39;+ __OUPUT_DIR__+&#39;. Exectured from: &#39;+ os.cwd())
 except OSError:None
 
-
-
 rotate_lat,rotate_lon = [0.0,0.0]
 &#39;&#39;&#39; rotate the variable coordinates by the values of lat and lon within the L0 module&#39;&#39;&#39;
 
 
-def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
+
+
+
+
+def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -121,7 +123,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 
     __origin__ = name
     if not __FILES__:__FILES__ = get_names(name,path=loc)
-    __FILES__ = __FILES__[:2]
+    # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
     
     
@@ -131,6 +133,16 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
+
+    
+    
+    
+    stashname = &#39;_&#39;.join(stash_master,stash_mapping,stash_umi)+&#39;.dl&#39;
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname,&#39;rb&#39;))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname)
 
 
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
@@ -161,6 +173,10 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     # data = xarray.combine_by_coords(cube_list[:,0])
     
     ## GET DATASET - multiprocessing crashes read of file
+    
+    
+    
+    
     data = cube2xarr(cubes, **kwargs)
     
     # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
@@ -180,11 +196,11 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></dt>
+<dt><code class="name"><a title="aervis.L0.ppread" href="ppread.html">aervis.L0.ppread</a></code></dt>
 <dd>
 <div class="desc"><p>Tools to read a number of pp files.</p></div>
 </dd>
-<dt><code class="name"><a title="AerVis.L0.process_cube" href="process_cube.html">AerVis.L0.process_cube</a></code></dt>
+<dt><code class="name"><a title="aervis.L0.process_cube" href="process_cube.html">aervis.L0.process_cube</a></code></dt>
 <dd>
 <div class="desc"><p>A function to convert a cube into an xarray object and save it in a single dataset</p></div>
 </dd>
@@ -195,8 +211,8 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="AerVis.L0.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4)</span>
+<dt id="aervis.L0.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, stash_master='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/STASHmaster_A', stash_mapping='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/ukca_stdname_vn92_v2', stash_umi='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/teafy.A.diags_short')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Default L0 run script for manual initiation, or being run as a module.</p>
@@ -205,7 +221,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -218,7 +234,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 
     __origin__ = name
     if not __FILES__:__FILES__ = get_names(name,path=loc)
-    __FILES__ = __FILES__[:2]
+    # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
     
     
@@ -228,6 +244,16 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
+
+    
+    
+    
+    stashname = &#39;_&#39;.join(stash_master,stash_mapping,stash_umi)+&#39;.dl&#39;
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname,&#39;rb&#39;))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname)
 
 
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
@@ -258,6 +284,10 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
     # data = xarray.combine_by_coords(cube_list[:,0])
     
     ## GET DATASET - multiprocessing crashes read of file
+    
+    
+    
+    
     data = cube2xarr(cubes, **kwargs)
     
     # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
@@ -286,18 +316,18 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis" href="../index.html">AerVis</a></code></li>
+<li><code><a title="aervis" href="../index.html">aervis</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="AerVis.L0.ppread" href="ppread.html">AerVis.L0.ppread</a></code></li>
-<li><code><a title="AerVis.L0.process_cube" href="process_cube.html">AerVis.L0.process_cube</a></code></li>
+<li><code><a title="aervis.L0.ppread" href="ppread.html">aervis.L0.ppread</a></code></li>
+<li><code><a title="aervis.L0.process_cube" href="process_cube.html">aervis.L0.process_cube</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="AerVis.L0.run" href="#AerVis.L0.run">run</a></code></li>
+<li><code><a title="aervis.L0.run" href="#aervis.L0.run">run</a></code></li>
 </ul>
 </li>
 </ul>

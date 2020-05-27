@@ -2,7 +2,7 @@ import os
 
 pwd = __file__.strip('makedoc.py')
 
-code = pwd+'AerVis'
+code = pwd+'aervis'
 doc  = pwd+'Documentation'
 
 cmd = 'pdoc --html %(code)s --output-dir %(doc)s --force'%{'code':code, 'doc':doc}

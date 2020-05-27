@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>AerVis.variable_dict API documentation</title>
+<title>aervis.variable_dict API documentation</title>
 <meta name="description" content="Variable Dictionary files" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>AerVis.variable_dict</code></h1>
+<h1 class="title">Module <code>aervis.variable_dict</code></h1>
 </header>
 <section id="section-intro">
 <p>Variable Dictionary files</p>
@@ -32,96 +32,133 @@ Variable Dictionary files
 
 import iris,re
 # relative import ..
-from ..global_config import __FILE_STASHmaster__,__FILE_PRESM_A_Summary__,__FILE_mapping__,__FILE_STASH_From_UMUI__
 from .var_classes import *
 import numpy as np
 
 
 
-var_ref = VariableReference()
 
 
-# stash_code=&#39;empty&#39;
-# long_name_mapping_file=&#39;long_name&#39;
-# name_mapping_file=&#39;name&#39;
-# units_mapping_file=&#39;units&#39;
-#
-# name = &#39;empty&#39;
-# short_name=&#39;empty&#39;
-# long_name=&#39;empty&#39;
-# units=&#39;empty&#39;
+def makeVR(files):
+    &#39;&#39;&#39;
+    Make the variable dictionary using the files:
+        __FILE_STASHmaster__
+        __FILE_mapping__
+        __FILE_STASH_From_UMUI__
+        
+    If this has already been done, it loads the relevant file. 
+        
+        
+    input (string|dict):
+        string: &#39;&lt;stash master&gt;,&lt;File mapping&gt;,&lt;file UMI&gt;&#39;
+        dict:    {__FILE_STASHmaster__:&lt;stash master&gt;,__FILE_mapping__:&lt;file mapping&gt;,__FILE_STASH_From_UMUI__:&lt;file Umi&gt;}
+        
+        
+    output (VariableReference class object)
+    
+    example_usage:
+    
+      from global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
+      
+      makeVR(&#39;,&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ])   )
 
-###############
+    
+    &#39;&#39;&#39;
 
-with open(__FILE_STASHmaster__, &#39;r&#39;) as f:
-    for _ in range(12):next(f) #skip 12
+    if type(files) is str:
+        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.split(&#39;,&#39;)))
+        
+    assert type(files) is dict, &#39;Files needs to be a dictionary&#39;
+    
+    print (files)
 
-    #filter lines starting with 1
-    stashdata = np.array(re.findall(r&#39;\n1(%s)_*\|([^\|]+)&#39;%(r&#39;_*\|_*(\d+)&#39;*3),re.sub(&#39;[ \t]+&#39;,&#39;_&#39;,&#39;\n&#39;+f.read())))[:,1:]
+    var_ref = VariableReference()
 
-    #parse the names and strip end space
-    stashdata[:,-1] = np.vectorize(lambda x:x.strip(&#39;_&#39;).replace(&#39;/&#39;,&#39;div&#39;))(stashdata[:,-1])
+    # stash_code=&#39;empty&#39;
+    # long_name_mapping_file=&#39;long_name&#39;
+    # name_mapping_file=&#39;name&#39;
+    # units_mapping_file=&#39;units&#39;
+    #
+    # name = &#39;empty&#39;
+    # short_name=&#39;empty&#39;
+    # long_name=&#39;empty&#39;
+    # units=&#39;empty&#39;
 
-    # find codes which need a zero prebuffer for code nav
-    stashdata[:,:2] = np.vectorize(lambda x: x.zfill(2))(stashdata[:,:2])
+    ###############
 
-    stashdata[:,2] = np.vectorize(lambda x: x.zfill(3))(stashdata[:,2])
+    with open(files[&#39;__FILE_STASHmaster__&#39;], &#39;r&#39;) as f:
+        for _ in range(12):next(f) #skip 12
 
+        #filter lines starting with 1
+        stashdata = np.array(re.findall(r&#39;\n1(%s)_*\|([^\|]+)&#39;%(r&#39;_*\|_*(\d+)&#39;*3),re.sub(&#39;[ \t]+&#39;,&#39;_&#39;,&#39;\n&#39;+f.read())))[:,1:]
 
-    for st1,st2,st3,name in stashdata:
-        # add to reflist
-        st_code=&#39;m&#39;+st1+&#39;s&#39;+st2+&#39;i&#39;+st3
-        var_ref.add({&#39;stash_code&#39;:st_code,&#39;name&#39;:name})
+        #parse the names and strip end space
+        stashdata[:,-1] = np.vectorize(lambda x:x.strip(&#39;_&#39;).replace(&#39;/&#39;,&#39;div&#39;))(stashdata[:,-1])
 
-    # cleanup
-    del stashdata,st1,st2,st3,name,st_code
+        # find codes which need a zero prebuffer for code nav
+        stashdata[:,:2] = np.vectorize(lambda x: x.zfill(2))(stashdata[:,:2])
 
-
-####################
-
-
-with open(__FILE_STASH_From_UMUI__) as f:
-# Read first 8 lines as header.  There must be a better way to do this!
-    for _ in range(8):next(f)
-
-    #umui_table={}
-    umui_table={&#39;stash&#39;:[],&#39;name&#39;:[]}
-
-    for section,item,name in re.findall(r&#39;\n\s*(\d+)\s*(\d+)\s*([^\n]+)&#39;,&#39;\n&#39;+f.read()):
-        umui_table[&#39;stash&#39;].append(iris.fileformats.pp.STASH(&#39;1&#39;,section,item))
-        umui_table[&#39;name&#39;].append(name.strip().replace(&#39; &#39;,&#39;_&#39;))
-
-    del section,item,name
-
-
-####################
-
-#mapping_file_dict={&#39;stash&#39;:[],&#39;short_name&#39;:[],&#39;long_name&#39;:[],&#39;units&#39;:[]}
-
-with open(__FILE_mapping__) as f:
-    next(f)
-
-    match = &#39;([^\s]+)\s+&#39;*4
-    match = &#39;\s*%s*\n&#39;%(match[:-1])
-
-    data = np.array(re.findall(match,f.read()))
-
-#
-# data = np.loadtxt(__FILE_mapping__,dtype=str,delimiter=&#39; &#39;,skiprows=1)
-
-    stash = data[:,0]
-    short_name = data[:,1]
-    long_name = data[:,2]
-    units = data[:,3]
-
-    mapping_file_dict = dict(( (i,globals()[i]) for i in &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;)))
-
-    for stash,short_name,long_name,units in data:
-        var_ref.add(dict(( (i,globals()[i]) for i in &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;))))
-
-    del data,stash,short_name,long_name,units,match
+        stashdata[:,2] = np.vectorize(lambda x: x.zfill(3))(stashdata[:,2])
 
 
+        for st1,st2,st3,name in stashdata:
+            # add to reflist
+            st_code=&#39;m&#39;+st1+&#39;s&#39;+st2+&#39;i&#39;+st3
+            var_ref.add({&#39;stash_code&#39;:st_code,&#39;name&#39;:name})
+
+        # cleanup
+        del stashdata,st1,st2,st3,name,st_code
+
+
+    ####################
+
+
+    with open(files[&#39;__FILE_STASH_From_UMUI__&#39;]) as f:
+    # Read first 8 lines as header.  There must be a better way to do this!
+        for _ in range(8):next(f)
+
+        #umui_table={}
+        umui_table={&#39;stash&#39;:[],&#39;name&#39;:[]}
+
+        for section,item,name in re.findall(r&#39;\n\s*(\d+)\s*(\d+)\s*([^\n]+)&#39;,&#39;\n&#39;+f.read()):
+            umui_table[&#39;stash&#39;].append(iris.fileformats.pp.STASH(&#39;1&#39;,section,item))
+            umui_table[&#39;name&#39;].append(name.strip().replace(&#39; &#39;,&#39;_&#39;))
+
+        del section,item,name
+
+
+    ####################
+
+    #mapping_file_dict={&#39;stash&#39;:[],&#39;short_name&#39;:[],&#39;long_name&#39;:[],&#39;units&#39;:[]}
+
+    with open(files[&#39;__FILE_mapping__&#39;]) as f:
+        next(f)
+
+        match = &#39;([^\s]+)\s+&#39;*4
+        match = &#39;\s*%s*\n&#39;%(match[:-1])
+
+        data = np.array(re.findall(match,f.read()))
+
+
+        # stash = data[:,0]
+        # short_name = data[:,1]
+        # long_name = data[:,2]
+        # units = data[:,3]
+
+        # mapping_file_dict = dict(( (i,locals()[i]) for i in &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;)))
+
+        names = &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;)
+        for line in data:
+            stash,short_name,long_name,units = line
+            var_ref.add(dict( zip(names,line) ) )
+
+        #  Garbage collection automatic at end of function (now a function) . 
+        # del data,stash,short_name,long_name,units,match,names
+
+
+
+
+    return var_ref
 
 &#39;&#39;&#39;
 gen stash picker
@@ -137,7 +174,7 @@ print(&#39;fi::VariableDictionary&#39;)</code></pre>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="AerVis.variable_dict.var_classes" href="var_classes.html">AerVis.variable_dict.var_classes</a></code></dt>
+<dt><code class="name"><a title="aervis.variable_dict.var_classes" href="var_classes.html">aervis.variable_dict.var_classes</a></code></dt>
 <dd>
 <div class="desc"><p>Varialbe Calsses</p></div>
 </dd>
@@ -146,6 +183,153 @@ print(&#39;fi::VariableDictionary&#39;)</code></pre>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="aervis.variable_dict.makeVR"><code class="name flex">
+<span>def <span class="ident">makeVR</span></span>(<span>files)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make the variable dictionary using the files:
+<strong>FILE_STASHmaster</strong>
+<strong>FILE_mapping</strong>
+<strong>FILE_STASH_From_UMUI</strong></p>
+<p>If this has already been done, it loads the relevant file. </p>
+<p>input (string|dict):
+string: '<stash master>,<File mapping>,<file UMI>'
+dict:
+{<strong>FILE_STASHmaster</strong>:<stash master>,<strong>FILE_mapping</strong>:<file mapping>,<strong>FILE_STASH_From_UMUI</strong>:<file Umi>}</p>
+<p>output (VariableReference class object)</p>
+<p>example_usage:</p>
+<p>from global_config import <strong>FILE_STASHmaster</strong>,<strong>FILE_mapping</strong>,<strong>FILE_STASH_From_UMUI</strong></p>
+<p>makeVR(','.join([ <strong>FILE_STASHmaster</strong>,<strong>FILE_mapping</strong>,<strong>FILE_STASH_From_UMUI</strong> ])
+)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def makeVR(files):
+    &#39;&#39;&#39;
+    Make the variable dictionary using the files:
+        __FILE_STASHmaster__
+        __FILE_mapping__
+        __FILE_STASH_From_UMUI__
+        
+    If this has already been done, it loads the relevant file. 
+        
+        
+    input (string|dict):
+        string: &#39;&lt;stash master&gt;,&lt;File mapping&gt;,&lt;file UMI&gt;&#39;
+        dict:    {__FILE_STASHmaster__:&lt;stash master&gt;,__FILE_mapping__:&lt;file mapping&gt;,__FILE_STASH_From_UMUI__:&lt;file Umi&gt;}
+        
+        
+    output (VariableReference class object)
+    
+    example_usage:
+    
+      from global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
+      
+      makeVR(&#39;,&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ])   )
+
+    
+    &#39;&#39;&#39;
+
+    if type(files) is str:
+        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.split(&#39;,&#39;)))
+        
+    assert type(files) is dict, &#39;Files needs to be a dictionary&#39;
+    
+    print (files)
+
+    var_ref = VariableReference()
+
+    # stash_code=&#39;empty&#39;
+    # long_name_mapping_file=&#39;long_name&#39;
+    # name_mapping_file=&#39;name&#39;
+    # units_mapping_file=&#39;units&#39;
+    #
+    # name = &#39;empty&#39;
+    # short_name=&#39;empty&#39;
+    # long_name=&#39;empty&#39;
+    # units=&#39;empty&#39;
+
+    ###############
+
+    with open(files[&#39;__FILE_STASHmaster__&#39;], &#39;r&#39;) as f:
+        for _ in range(12):next(f) #skip 12
+
+        #filter lines starting with 1
+        stashdata = np.array(re.findall(r&#39;\n1(%s)_*\|([^\|]+)&#39;%(r&#39;_*\|_*(\d+)&#39;*3),re.sub(&#39;[ \t]+&#39;,&#39;_&#39;,&#39;\n&#39;+f.read())))[:,1:]
+
+        #parse the names and strip end space
+        stashdata[:,-1] = np.vectorize(lambda x:x.strip(&#39;_&#39;).replace(&#39;/&#39;,&#39;div&#39;))(stashdata[:,-1])
+
+        # find codes which need a zero prebuffer for code nav
+        stashdata[:,:2] = np.vectorize(lambda x: x.zfill(2))(stashdata[:,:2])
+
+        stashdata[:,2] = np.vectorize(lambda x: x.zfill(3))(stashdata[:,2])
+
+
+        for st1,st2,st3,name in stashdata:
+            # add to reflist
+            st_code=&#39;m&#39;+st1+&#39;s&#39;+st2+&#39;i&#39;+st3
+            var_ref.add({&#39;stash_code&#39;:st_code,&#39;name&#39;:name})
+
+        # cleanup
+        del stashdata,st1,st2,st3,name,st_code
+
+
+    ####################
+
+
+    with open(files[&#39;__FILE_STASH_From_UMUI__&#39;]) as f:
+    # Read first 8 lines as header.  There must be a better way to do this!
+        for _ in range(8):next(f)
+
+        #umui_table={}
+        umui_table={&#39;stash&#39;:[],&#39;name&#39;:[]}
+
+        for section,item,name in re.findall(r&#39;\n\s*(\d+)\s*(\d+)\s*([^\n]+)&#39;,&#39;\n&#39;+f.read()):
+            umui_table[&#39;stash&#39;].append(iris.fileformats.pp.STASH(&#39;1&#39;,section,item))
+            umui_table[&#39;name&#39;].append(name.strip().replace(&#39; &#39;,&#39;_&#39;))
+
+        del section,item,name
+
+
+    ####################
+
+    #mapping_file_dict={&#39;stash&#39;:[],&#39;short_name&#39;:[],&#39;long_name&#39;:[],&#39;units&#39;:[]}
+
+    with open(files[&#39;__FILE_mapping__&#39;]) as f:
+        next(f)
+
+        match = &#39;([^\s]+)\s+&#39;*4
+        match = &#39;\s*%s*\n&#39;%(match[:-1])
+
+        data = np.array(re.findall(match,f.read()))
+
+
+        # stash = data[:,0]
+        # short_name = data[:,1]
+        # long_name = data[:,2]
+        # units = data[:,3]
+
+        # mapping_file_dict = dict(( (i,locals()[i]) for i in &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;)))
+
+        names = &#39;stash,short_name,long_name,units&#39;.split(&#39;,&#39;)
+        for line in data:
+            stash,short_name,long_name,units = line
+            var_ref.add(dict( zip(names,line) ) )
+
+        #  Garbage collection automatic at end of function (now a function) . 
+        # del data,stash,short_name,long_name,units,match,names
+
+
+
+
+    return var_ref</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -158,12 +342,17 @@ print(&#39;fi::VariableDictionary&#39;)</code></pre>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="AerVis" href="../index.html">AerVis</a></code></li>
+<li><code><a title="aervis" href="../index.html">aervis</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="AerVis.variable_dict.var_classes" href="var_classes.html">AerVis.variable_dict.var_classes</a></code></li>
+<li><code><a title="aervis.variable_dict.var_classes" href="var_classes.html">aervis.variable_dict.var_classes</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="aervis.variable_dict.makeVR" href="#aervis.variable_dict.makeVR">makeVR</a></code></li>
 </ul>
 </li>
 </ul>

@@ -43,7 +43,7 @@ from .ppread import *
 from ..variable_dict import *
 from .process_cube import *
 from ..util import chunk
-from ..global_config import __FILE_STASHmaster__,,__FILE_mapping__,__FILE_STASH_From_UMUI__
+from ..global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
 
 __all__ = '__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run'.split()
 
