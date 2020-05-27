@@ -1,13 +1,24 @@
-import setuptools
+try:
+    from setuptools import setup
+except:
+    from distutils.core import setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+    
+req = 'dill datetime xarray scipy'.split()
+req.append('iris @ https://github.com/SciTools/iris/archive/v2.4.0.tar.gz')
 
-setuptools.setup(
-    name="aervis", # Replace with your own username
-    version="0.0.1",
+print('requirements: ',req)
+
+setup(
+    name="AerVis", # Replace with your own username
+    version="0.0.2",
     author="CEMAC",
-    author_email="K.Pringle@leeds.ac.uk,D.Ellis(at)leeds.ac.uk,eejvt@leeds.ac.uk",
+    # package_dir={'': 'AerVis'},
+    # packages=setuptools.find_packages(where='AerVis'),
+    packages = ['aervis'],
+    author_email="K.Pringle(at)leeds.ac.uk,D.Ellis(at)leeds.ac.uk,eejvt(at)leeds.ac.uk",
     description="A package for processing aerosol model output",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -20,8 +31,7 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     keywords='aerosol cemac leeds ukca',
-    package_dir={'': 'AerVis'},
-    packages=find_packages(where='src'),
-    install_requires='dill datetime xarray scipy https://github.com/SciTools/iris/releases/tag/v2.4.0'.split()
-    
+    install_requires=req
 )
+
+#/opt/anaconda3/lib/python3.7/site-packages/aervis.egg-link
