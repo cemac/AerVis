@@ -8,8 +8,7 @@ UKCA_postproc python library
 
 
 ## Install (not yet available)
-#### General user
-`conda install aervis -c wolfiex`
+
 
 #### Developer using the GIT directory
 `python setup.py develop`
