@@ -42,6 +42,36 @@ def run(self):
         
         
         
+    ''' Air Density '''
+    
+    
+    self.
+    air_density=(air_pressure/(temperature*R_specific))
+
+
+
+
+
+    particle_density_of_air=air_density/molar_mass_air*avogadro_number
+
+    ukl.#print_cube_single_value(particle_density_of_air) # Do not remove
+
+
+
+    air_density._var_name='air_density'
+    air_density.long_name='Density of air'
+    save_cube(air_density)
+    
+    
+    
+    
+    
+    
+    
+    ''' append 
+        
+        
+        
         
         
     '''
