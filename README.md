@@ -15,6 +15,8 @@ UKCA_postproc python library
 
 
 ## Run Example
+For more examples and information see the <a href='https://github.com/wolfiex/AerVis/wiki'>WIKI</a>
+
 
 #### Python library
 ```
