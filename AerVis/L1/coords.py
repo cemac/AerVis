@@ -12,7 +12,6 @@ coord_list = [
 # (1000.0,'p0','reference_pressure','hPa')
 # (100000.0,'p_convert','convert_units','Pa')
 (287.058,'r_specific','R_specific','J-kilogram^-1-kelvin^-1'),#J/(kg·K)
-  
 (28.991e-3,'molar_mass_air','Molar mass of air','kilogram-mole^-1'),#J/(kg·K)
 (6.022e23,'avogadro','Avogadros number - particles per mol','mole^-1'),#J/(kg·K)
 

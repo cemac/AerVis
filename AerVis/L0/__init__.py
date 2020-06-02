@@ -43,7 +43,7 @@ from .ppread import *
 from ..variable_dict import *
 from .process_cube import *
 from ..util import chunk
-from ..global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
+from ..global_config import __FILE_STASHmaster__,,__FILE_mapping__,__FILE_STASH_From_UMUI__
 
 __all__ = '__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run'.split()
 
@@ -64,7 +64,7 @@ rotate_lat,rotate_lon = [0.0,0.0]
 
 
 
-def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
+def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__ , stashname = ''):
     '''
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -90,13 +90,12 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_S
 
     
     
-    
-    stashname = '_'.join(stash_master,stash_mapping,stash_umi)+'.dl'
+    if not stashname: stashname = '_'.join(stash_master,stash_mapping,stash_umi)
     try:#does a pickle already exist
-        var_ref = dill.load(open(stashname,'rb'))  
+        var_ref = dill.load(open(stashname+'.dl','rb'))  
     except FileNotFoundError:
         var_ref = makeVR(stashname)
-        var_ref.save(stashname)
+        var_ref.save(stashname+'.dl')
 
 
     kwargs = {'var_ref':var_ref,'rotate_lat':rotate_lat, 'rotate_lon':rotate_lon}
