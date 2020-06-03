@@ -107,10 +107,18 @@ rotate_lat,rotate_lon = [0.0,0.0]
 
 
 
+def getVR(stashname):
+    &#39;&#39;&#39; If existing, reads the stashobject, otherwise creates and saves it&#39;&#39;&#39;
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname+&#39;.dl&#39;,&#39;rb&#39;))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname+&#39;.dl&#39;)
+    return var_ref
 
 
 
-def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
+def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__ , stashname = &#39;&#39;):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -127,22 +135,33 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     __FILES__.insert(0,__OROGRAPY__)
     
     
+    print([stash_master,stash_mapping,stash_umi])
+    
+    if not stashname: 
+        # generate the stashname from provided files
+        # stashname = []
+        # for i,j in enumerate([__FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__]):
+        #     head,tail = os.path.split(j)
+        #     if i==0:stashname = [head,tail]
+        #     else:stashname.append(tail)
+        #     print (head,tail)
+        stashname = &#39;¬&#39;.join([stash_master,stash_mapping,stash_umi]).replace(&#39;/&#39;,&#39;~&#39;)
+        print(stashname)
+        var_ref= getVR(stashname)    
+        
+        
+    
+    
 
-    print (&#39;---- Loading %s ----&#39;%name)
+
+
+    print (&#39;---- Reading data for %s ----&#39;%name)
     start = time.perf_counter()
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
     
-    
-    
-    stashname = &#39;_&#39;.join(stash_master,stash_mapping,stash_umi)+&#39;.dl&#39;
-    try:#does a pickle already exist
-        var_ref = dill.load(open(stashname,&#39;rb&#39;))  
-    except FileNotFoundError:
-        var_ref = makeVR(stashname)
-        var_ref.save(stashname)
 
 
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
@@ -184,6 +203,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     total = time.perf_counter() - start
     data.attrs[&#39;iris_cube_delta&#39;] = end
     data.attrs[&#39;L0_delta&#39;] = total
+    data.attrs[&#39;stashname&#39;]= stashname
     print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
     
         
@@ -212,7 +232,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="aervis.L0.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, stash_master='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/STASHmaster_A', stash_mapping='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/ukca_stdname_vn92_v2', stash_umi='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/teafy.A.diags_short')</span>
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, stash_master='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/STASHmaster_A', stash_mapping='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/ukca_stdname_vn92_v2', stash_umi='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/variable_dict/teafy.A.diags_short', stashname='')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Default L0 run script for manual initiation, or being run as a module.</p>
@@ -221,7 +241,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__  ):
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__ , stashname = &#39;&#39;):
     &#39;&#39;&#39;
     Default L0 run script for manual initiation, or being run as a module.
 
@@ -238,22 +258,33 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     __FILES__.insert(0,__OROGRAPY__)
     
     
+    print([stash_master,stash_mapping,stash_umi])
+    
+    if not stashname: 
+        # generate the stashname from provided files
+        # stashname = []
+        # for i,j in enumerate([__FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__]):
+        #     head,tail = os.path.split(j)
+        #     if i==0:stashname = [head,tail]
+        #     else:stashname.append(tail)
+        #     print (head,tail)
+        stashname = &#39;¬&#39;.join([stash_master,stash_mapping,stash_umi]).replace(&#39;/&#39;,&#39;~&#39;)
+        print(stashname)
+        var_ref= getVR(stashname)    
+        
+        
+    
+    
 
-    print (&#39;---- Loading %s ----&#39;%name)
+
+
+    print (&#39;---- Reading data for %s ----&#39;%name)
     start = time.perf_counter()
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
 
     
-    
-    
-    stashname = &#39;_&#39;.join(stash_master,stash_mapping,stash_umi)+&#39;.dl&#39;
-    try:#does a pickle already exist
-        var_ref = dill.load(open(stashname,&#39;rb&#39;))  
-    except FileNotFoundError:
-        var_ref = makeVR(stashname)
-        var_ref.save(stashname)
 
 
     kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
@@ -295,6 +326,7 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     total = time.perf_counter() - start
     data.attrs[&#39;iris_cube_delta&#39;] = end
     data.attrs[&#39;L0_delta&#39;] = total
+    data.attrs[&#39;stashname&#39;]= stashname
     print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
     
         

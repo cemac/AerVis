@@ -31,28 +31,20 @@ The L1 section of the AerVis code
 
 This section gathers information about the simulation runs
 &#39;&#39;&#39;
+from . import I_MODE_SETUP_var as imv #this seems to percist, but vars can be supplied separately if not the case. 
 
 
-
-def run(self):
+def run(self,save=True):
     
     
     # TEMPERATURE
     
-    &#39;&#39;&#39; 
-    If data does not contain &#34;temperature&#34;
-    &#39;&#39;&#39;
-    
-    if self.model == &#39;tomcat&#39;:
-        self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
-    else: 
-        pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
+    &#39;&#39;&#39; Temperature &#39;&#39;&#39;
+    if self.model == &#39;tomcat&#39;: self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
+    else: pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
         
-        
-        
-        # AIR Pressure only needed if temperature missing
-    
 
+    &#39;&#39;&#39; AIR Pressure &#39;&#39;&#39;
     try:
         self.air_pressure=self.data[&#39;m01s00i408&#39;][0]
         if self.air_pressure.shape != self.temperature.shape:
@@ -60,34 +52,184 @@ def run(self):
 
     except NameError:
         &#39;&#39;&#39; this will fall over&#39;&#39;&#39; 
-        
-        # manually  
         # air_pressure_nodim = self.data[&#39;m01s00i255&#39;][0]
         # p_convert = iris.coords.AuxCoord(100000.0,
         #                           long_name=&#39;convert_units&#39;,
         #                           units=&#39;Pa&#39;)
-        
         self.air_pressure=self.data[&#39;m01s00i255&#39;][0]*100000.0
 
 
-    # print &#39;potential temperature and air_pressure loaded&#39;
-    # p0 = iris.coords.AuxCoord(1000.0,
-    #                               long_name=&#39;reference_pressure&#39;,
-    #                               units=&#39;hPa&#39;)
-    # p0.convert_units(air_pressure.units)
-
     &#39;&#39;&#39;
+    TOMCAT TEMP
     p0= 100000 # 1 hPa = 100 Pa 
     Rd=287.05 # J/kg/K
     cp=1005.46 # J/kg/K
     &#39;&#39;&#39;
-    if self.model != &#39;tomcat&#39;:
-        self.temperature=pT*(air_pressure/100000.0)**(287.05/1005.46)
+    if self.model != &#39;tomcat&#39;:self.temperature=pT*(self.air_pressure/100000.0)**(287.05/1005.46)
         
         
         
-        
+    &#39;&#39;&#39; Air Density &#39;&#39;&#39;
+    
+    
+    
+    self.air_density=(self.air_pressure/(self.temperature*R_specific))
+
+
+
+
+
+    self.particle_density_of_air=self.air_density/molar_mass_air*avogadro_number
+
+    # ukl.#print_cube_single_value(particle_density_of_air) # Do not remove
+    # 
+    # 
+    # 
+    # air_density._var_name=&#39;air_density&#39;
+    # air_density.long_name=&#39;Density of air&#39;
+    # save_cube(air_density)
+    # 
+    # 
+    
+    ###########################################
+    
+    
     &#39;&#39;&#39;
+    Add info
+    &#39;&#39;&#39;
+    
+    
+    self.vd()
+    dataset = xarray.Dataset()
+    
+    # mass mixing ratios - particles concentration
+    for entry in self.vr.match(&#39;nbr&#39;):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]
+            name = &#39;n&#39;+stash[3:]
+            
+            new[name]=self.data[stash]*self.particle_density_of_air
+            new[name].long_name=&#39;number_concentration&#39;+ item[&#39;long_name&#39;][15:]
+            new[name]._var_name=name
+            
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+            
+    
+    # mass mixing ratios - mass concentration    
+    mc_keys = []    
+    for entry in self.vr.match([&#39;mmr&#39;,&#39;sol&#39;]) + self.vr.match([&#39;mmr&#39;,&#39;ins&#39;]):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]  
+            name = &#39;mcon_&#39;+stash[3:]  
+            
+            new[name]=self.data[stash]*self.air_density
+            new[name].long_name=&#39;mass_concentration&#39;+ item[&#39;long_name&#39;][13:-7]
+            new[name]._var_name=name    
+            
+            mc_keys.append(name)
+            
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+                        
+    
+    
+    &#39;&#39;&#39;
+    ims fn
+    &#39;&#39;&#39;
+    
+    #mass_concentration_per_component
+    for comp_name in ims.component_names:
+        name = &#39;mcon_&#39;+comp_name
+
+        new[name].long_name=&#39;total_mass_concentration_of_%s&#39;%comp_name
+        new[name]._var_name=name
+        
+        for key in list(filter(lambda x: mode_name in x , mc_keys)):
+            try:new[name]+=new[key]
+            except:new[name]=new[key]
+            
+
+    #mass_concentration_per_mode
+    for mode_name in ims.mode_names:
+        name = &#39;mcon_&#39;+mode_name
+
+        new[name].long_name=&#39;total_mass_concentration_in_%s&#39;%mode_name
+        new[name]._var_name=name
+        
+        for key in list(filter(lambda x: mode_name in x , mc_keys)):
+            try:new[name]+=new[key]
+            except:new[name]=new[key]
+
+        
+    
+    
+    
+    # 
+    # 
+    # mass_concentration_per_mode={}
+    # for mode_name in ims.mode_names:
+    #     cubes_to_add=[mass_concentration[key] for key in mass_concentration.keys() if mode_name in key]
+    # 
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+mode_name]=np.sum(cubes_to_add)
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+mode_name].long_name=&#39;total_mass_concentration_in_%s&#39;%mode_name
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+mode_name]._var_name=&#39;mcon_&#39;+mode_name
+    #     save_cube(mass_concentration_per_mode[&#39;mcon_&#39;+mode_name])
+
+    # mass_concentration_per_component={}
+    # for comp_name in ims.component_names:
+    #     cubes_to_add=[mass_concentration[key] for key in mass_concentration.keys() if comp_name in key]
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+comp_name]=np.sum(cubes_to_add)
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+comp_name].long_name=&#39;total_mass_concentration_of_%s&#39;%comp_name
+    #     mass_concentration_per_mode[&#39;mcon_&#39;+comp_name]._var_name=&#39;mcon_&#39;+comp_name
+    #     save_cube(mass_concentration_per_mode[&#39;mcon_&#39;+comp_name])
+&#39;&#39;&#39;
+
+    #Calculate volume of modes per component
+    mode_volume_per_component={}
+    list_volumes=[]
+    for mode_name in ims.mode_names:
+        keys=[key for key in mass_concentration.keys() if mode_name in key]
+        #print keys
+        for comp_name in ims.component_names:
+            keys_comp=[key for key in keys if comp_name in key]
+            if len(keys_comp):
+                mode_volume_per_component[&#39;vol_&#39;+keys_comp[0][5:]]= \
+                mass_concentration[keys_comp[0]]/ims.species_attributes[comp_name].rhocomp
+                mode_volume_per_component[&#39;vol_&#39;+keys_comp[0][5:]].long_name=&#39;Volume_fraction&#39;+mass_concentration[keys_comp[0]].long_name[18:]
+                mode_volume_per_component[&#39;vol_&#39;+keys_comp[0][5:]]._var_name=&#39;vol_&#39;+keys_comp[0][5:]
+                save_cube(mode_volume_per_component[&#39;vol_&#39;+keys_comp[0][5:]])
+
+    #%%
+    #Calculate volume and radius of modes
+    mode_radius={}
+    mode_volume={}
+
+    for mode_name in ims.mode_names:
+        keys=[key for key in mode_volume_per_component.keys() if mode_name in key]
+        print mode_name
+
+        cubes_to_add=[mode_volume_per_component[key] for key in keys]
+        mode_volume[&#39;vol_&#39;+mode_name]=np.sum(cubes_to_add)
+        mode_volume[&#39;vol_&#39;+mode_name]._var_name=&#39;vol_&#39;+mode_name
+        mode_volume[&#39;vol_&#39;+mode_name].long_name=&#39;Total_volume_fraction_&#39;+mode_name
+        save_cube(mode_volume[&#39;vol_&#39;+mode_name])
+
+        mode_radius[&#39;rad_&#39;+mode_name]=0.5*iris.analysis.maths.exponentiate((
+            6*mode_volume[&#39;vol_&#39;+mode_name]/particles_concentration[&#39;n_&#39;+mode_name]
+            )/(np.pi*np.exp(4.5*(np.log(ims.modal_attributes[mode_name].sigma))))
+            ,1./3.)
+
+
+        mode_radius[&#39;rad_&#39;+mode_name]._var_name=&#39;rad_&#39;+mode_name
+        mode_radius[&#39;rad_&#39;+mode_name].long_name=&#39;Radius_of_mode_&#39;+mode_name
+        save_cube(mode_radius[&#39;rad_&#39;+mode_name])
+
+        &#39;&#39;&#39;
+        
+&#39;&#39;&#39;
     filter nbr 
     filter mmr
     &#39;&#39;&#39;</code></pre>
@@ -96,6 +238,10 @@ def run(self):
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="aervis.L1.I_MODE_SETUP_var" href="I_MODE_SETUP_var.html">aervis.L1.I_MODE_SETUP_var</a></code></dt>
+<dd>
+<div class="desc"><p>Routine to store model variables not given in the ouput files …</p></div>
+</dd>
 <dt><code class="name"><a title="aervis.L1.addcubes" href="addcubes.html">aervis.L1.addcubes</a></code></dt>
 <dd>
 <div class="desc"><p>Function for multiprocessing the creation of cubes</p></div>
@@ -112,33 +258,25 @@ def run(self):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="aervis.L1.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>self)</span>
+<span>def <span class="ident">run</span></span>(<span>self, save=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>If data does not contain "temperature"</p></div>
+<div class="desc"><p>Temperature</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(self):
+<pre><code class="python">def run(self,save=True):
     
     
     # TEMPERATURE
     
-    &#39;&#39;&#39; 
-    If data does not contain &#34;temperature&#34;
-    &#39;&#39;&#39;
-    
-    if self.model == &#39;tomcat&#39;:
-        self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
-    else: 
-        pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
+    &#39;&#39;&#39; Temperature &#39;&#39;&#39;
+    if self.model == &#39;tomcat&#39;: self.temperature = self.data[&#39;m01s16i004&#39;][0] ## temp
+    else: pT = self.data[&#39;m01s00i004&#39;][0] ## potential temp
         
-        
-        
-        # AIR Pressure only needed if temperature missing
-    
 
+    &#39;&#39;&#39; AIR Pressure &#39;&#39;&#39;
     try:
         self.air_pressure=self.data[&#39;m01s00i408&#39;][0]
         if self.air_pressure.shape != self.temperature.shape:
@@ -146,37 +284,116 @@ def run(self):
 
     except NameError:
         &#39;&#39;&#39; this will fall over&#39;&#39;&#39; 
-        
-        # manually  
         # air_pressure_nodim = self.data[&#39;m01s00i255&#39;][0]
         # p_convert = iris.coords.AuxCoord(100000.0,
         #                           long_name=&#39;convert_units&#39;,
         #                           units=&#39;Pa&#39;)
-        
         self.air_pressure=self.data[&#39;m01s00i255&#39;][0]*100000.0
 
 
-    # print &#39;potential temperature and air_pressure loaded&#39;
-    # p0 = iris.coords.AuxCoord(1000.0,
-    #                               long_name=&#39;reference_pressure&#39;,
-    #                               units=&#39;hPa&#39;)
-    # p0.convert_units(air_pressure.units)
-
     &#39;&#39;&#39;
+    TOMCAT TEMP
     p0= 100000 # 1 hPa = 100 Pa 
     Rd=287.05 # J/kg/K
     cp=1005.46 # J/kg/K
     &#39;&#39;&#39;
-    if self.model != &#39;tomcat&#39;:
-        self.temperature=pT*(air_pressure/100000.0)**(287.05/1005.46)
+    if self.model != &#39;tomcat&#39;:self.temperature=pT*(self.air_pressure/100000.0)**(287.05/1005.46)
         
         
         
-        
+    &#39;&#39;&#39; Air Density &#39;&#39;&#39;
+    
+    
+    
+    self.air_density=(self.air_pressure/(self.temperature*R_specific))
+
+
+
+
+
+    self.particle_density_of_air=self.air_density/molar_mass_air*avogadro_number
+
+    # ukl.#print_cube_single_value(particle_density_of_air) # Do not remove
+    # 
+    # 
+    # 
+    # air_density._var_name=&#39;air_density&#39;
+    # air_density.long_name=&#39;Density of air&#39;
+    # save_cube(air_density)
+    # 
+    # 
+    
+    ###########################################
+    
+    
     &#39;&#39;&#39;
-    filter nbr 
-    filter mmr
-    &#39;&#39;&#39;</code></pre>
+    Add info
+    &#39;&#39;&#39;
+    
+    
+    self.vd()
+    dataset = xarray.Dataset()
+    
+    # mass mixing ratios - particles concentration
+    for entry in self.vr.match(&#39;nbr&#39;):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]
+            name = &#39;n&#39;+stash[3:]
+            
+            new[name]=self.data[stash]*self.particle_density_of_air
+            new[name].long_name=&#39;number_concentration&#39;+ item[&#39;long_name&#39;][15:]
+            new[name]._var_name=name
+            
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+            
+    
+    # mass mixing ratios - mass concentration    
+    mc_keys = []    
+    for entry in self.vr.match([&#39;mmr&#39;,&#39;sol&#39;]) + self.vr.match([&#39;mmr&#39;,&#39;ins&#39;]):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]  
+            name = &#39;mcon_&#39;+stash[3:]  
+            
+            new[name]=self.data[stash]*self.air_density
+            new[name].long_name=&#39;mass_concentration&#39;+ item[&#39;long_name&#39;][13:-7]
+            new[name]._var_name=name    
+            
+            mc_keys.append(name)
+            
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+                        
+    
+    
+    &#39;&#39;&#39;
+    ims fn
+    &#39;&#39;&#39;
+    
+    #mass_concentration_per_component
+    for comp_name in ims.component_names:
+        name = &#39;mcon_&#39;+comp_name
+
+        new[name].long_name=&#39;total_mass_concentration_of_%s&#39;%comp_name
+        new[name]._var_name=name
+        
+        for key in list(filter(lambda x: mode_name in x , mc_keys)):
+            try:new[name]+=new[key]
+            except:new[name]=new[key]
+            
+
+    #mass_concentration_per_mode
+    for mode_name in ims.mode_names:
+        name = &#39;mcon_&#39;+mode_name
+
+        new[name].long_name=&#39;total_mass_concentration_in_%s&#39;%mode_name
+        new[name]._var_name=name
+        
+        for key in list(filter(lambda x: mode_name in x , mc_keys)):
+            try:new[name]+=new[key]
+            except:new[name]=new[key]</code></pre>
 </details>
 </dd>
 </dl>
@@ -197,6 +414,7 @@ def run(self):
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="aervis.L1.I_MODE_SETUP_var" href="I_MODE_SETUP_var.html">aervis.L1.I_MODE_SETUP_var</a></code></li>
 <li><code><a title="aervis.L1.addcubes" href="addcubes.html">aervis.L1.addcubes</a></code></li>
 <li><code><a title="aervis.L1.coords" href="coords.html">aervis.L1.coords</a></code></li>
 </ul>

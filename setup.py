@@ -6,7 +6,10 @@ except:
 with open("README.md", "r") as fh:
     long_description = fh.read()
     
-req = 'dill datetime xarray scipy'.split()
+'''
+dask 2.17.2
+'''    
+req = 'dill datetime dask>=2.17.2 xarray scipy'.split()
 req.append('iris @ https://github.com/SciTools/iris/archive/v2.4.0.tar.gz')
 
 print('requirements: ',req)

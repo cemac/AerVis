@@ -15,7 +15,8 @@ University of Leeds 2016-2020+
 
 
 """
-
+version = '0.0.1'
+print ('AerVis '+version)
 
 from .variable_dict import *
 from .datasetclass import *

@@ -61,6 +61,14 @@ rotate_lat,rotate_lon = [0.0,0.0]
 
 
 
+def getVR(stashname):
+    ''' If existing, reads the stashobject, otherwise creates and saves it'''
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname+'.dl','rb'))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname+'.dl')
+    return var_ref
 
 
 
@@ -81,21 +89,33 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_S
     __FILES__.insert(0,__OROGRAPY__)
     
     
+    print([stash_master,stash_mapping,stash_umi])
+    
+    if not stashname: 
+        # generate the stashname from provided files
+        # stashname = []
+        # for i,j in enumerate([__FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__]):
+        #     head,tail = os.path.split(j)
+        #     if i==0:stashname = [head,tail]
+        #     else:stashname.append(tail)
+        #     print (head,tail)
+        stashname = '¬'.join([stash_master,stash_mapping,stash_umi]).replace('/','~')
+        print(stashname)
+        var_ref= getVR(stashname)    
+        
+        
+    
+    
 
-    print ('---- Loading %s ----'%name)
+
+
+    print ('---- Reading data for %s ----'%name)
     start = time.perf_counter()
     cubes=iris.load(__FILES__)
     end = time.perf_counter() - start
     print (' %.2f minutes: %d files %d cubes'%(end/60,len(__FILES__),len(cubes)))
 
     
-    
-    if not stashname: stashname = '_'.join(stash_master,stash_mapping,stash_umi)
-    try:#does a pickle already exist
-        var_ref = dill.load(open(stashname+'.dl','rb'))  
-    except FileNotFoundError:
-        var_ref = makeVR(stashname)
-        var_ref.save(stashname+'.dl')
 
 
     kwargs = {'var_ref':var_ref,'rotate_lat':rotate_lat, 'rotate_lon':rotate_lon}
@@ -137,6 +157,7 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_S
     total = time.perf_counter() - start
     data.attrs['iris_cube_delta'] = end
     data.attrs['L0_delta'] = total
+    data.attrs['stashname']= stashname
     print (' ------- ',data.attrs['files'],data.attrs['avg_cube_delta'],total/60)
     
         
@@ -144,3 +165,4 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_S
     
     return data
     
+

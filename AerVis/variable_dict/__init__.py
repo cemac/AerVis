@@ -33,13 +33,17 @@ def makeVR(files):
     
       from global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
       
-      makeVR(','.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ])   )
+      
+      
+      
+      makeVR('¬'.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ]).replace('/','~'')   )
 
     
     '''
 
     if type(files) is str:
-        files = dict(zip('__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__'.split() , files.split(',')))
+        print()
+        files = dict(zip('__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__'.split() , files.replace('~','/').split('¬')))
         
     assert type(files) is dict, 'Files needs to be a dictionary'
     

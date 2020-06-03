@@ -51,6 +51,7 @@ class VariableReference(dict):
          Number of entries: %d
          '''%self.index
         
+        
     def add(self,data):
         '''Add additional Data'''
         assert type(data) == dict
@@ -69,6 +70,30 @@ class VariableReference(dict):
         setattr(self, 'var_id_%i'%self.index, data)
         setattr(self, name ,getattr(self,  'var_id_%i'%self.index))
         setattr(self, code ,getattr(self,  'var_id_%i'%self.index))
+        
+        
+    def match(self,snippet:str):
+        ''' 
+        Retrun all keys which contain the `snippet` string 
+        
+        if snippet == list, match all snippets
+        '''
+        if type(snippet) is str:
+            return list(filter(lambda x: snippet.upper() in x, self.keys())) 
+        else :
+            keys = self.keys()
+            for i in snippet:
+                keys = list(filter(lambda x: i.upper() in x, keys) )
+            return keys
+                
+                
+                  
+        
+        
+    def get(self, key):
+        ''' Get value from using key. This is a wrapper for getattr'''
+        
+        return getattr(self,key)  
         
         
     def save(self,filename = False):
@@ -98,6 +123,7 @@ class VariableReference(dict):
         
         self = dill.load(open(filename,'rb'))        
         print('reloaded class information from ',filename)
+        return self
         
     # def fromVarName(self,varstr):
     #     self.add(dict(( (i,globals()[i]) for i in varstr.split(','))) )

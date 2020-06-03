@@ -60,13 +60,17 @@ def makeVR(files):
     
       from global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
       
-      makeVR(&#39;,&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ])   )
+      
+      
+      
+      makeVR(&#39;¬&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ]).replace(&#39;/&#39;,&#39;~&#39;&#39;)   )
 
     
     &#39;&#39;&#39;
 
     if type(files) is str:
-        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.split(&#39;,&#39;)))
+        print()
+        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.replace(&#39;~&#39;,&#39;/&#39;).split(&#39;¬&#39;)))
         
     assert type(files) is dict, &#39;Files needs to be a dictionary&#39;
     
@@ -201,7 +205,7 @@ dict:
 <p>output (VariableReference class object)</p>
 <p>example_usage:</p>
 <p>from global_config import <strong>FILE_STASHmaster</strong>,<strong>FILE_mapping</strong>,<strong>FILE_STASH_From_UMUI</strong></p>
-<p>makeVR(','.join([ <strong>FILE_STASHmaster</strong>,<strong>FILE_mapping</strong>,<strong>FILE_STASH_From_UMUI</strong> ])
+<p>makeVR('¬'.join([ <strong>FILE_STASHmaster</strong>,<strong>FILE_mapping</strong>,<strong>FILE_STASH_From_UMUI</strong> ]).replace('/','~'')
 )</p></div>
 <details class="source">
 <summary>
@@ -228,13 +232,17 @@ dict:
     
       from global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
       
-      makeVR(&#39;,&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ])   )
+      
+      
+      
+      makeVR(&#39;¬&#39;.join([ __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__ ]).replace(&#39;/&#39;,&#39;~&#39;&#39;)   )
 
     
     &#39;&#39;&#39;
 
     if type(files) is str:
-        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.split(&#39;,&#39;)))
+        print()
+        files = dict(zip(&#39;__FILE_STASHmaster__ __FILE_mapping__ __FILE_STASH_From_UMUI__&#39;.split() , files.replace(&#39;~&#39;,&#39;/&#39;).split(&#39;¬&#39;)))
         
     assert type(files) is dict, &#39;Files needs to be a dictionary&#39;
     

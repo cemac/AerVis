@@ -78,6 +78,7 @@ class VariableReference(dict):
          Number of entries: %d
          &#39;&#39;&#39;%self.index
         
+        
     def add(self,data):
         &#39;&#39;&#39;Add additional Data&#39;&#39;&#39;
         assert type(data) == dict
@@ -96,6 +97,30 @@ class VariableReference(dict):
         setattr(self, &#39;var_id_%i&#39;%self.index, data)
         setattr(self, name ,getattr(self,  &#39;var_id_%i&#39;%self.index))
         setattr(self, code ,getattr(self,  &#39;var_id_%i&#39;%self.index))
+        
+        
+    def match(self,snippet:str):
+        &#39;&#39;&#39; 
+        Retrun all keys which contain the `snippet` string 
+        
+        if snippet == list, match all snippets
+        &#39;&#39;&#39;
+        if type(snippet) is str:
+            return list(filter(lambda x: snippet.upper() in x, self.keys())) 
+        else :
+            keys = self.keys()
+            for i in snippet:
+                keys = list(filter(lambda x: i.upper() in x, keys) )
+            return keys
+                
+                
+                  
+        
+        
+    def get(self, key):
+        &#39;&#39;&#39; Get value from using key. This is a wrapper for getattr&#39;&#39;&#39;
+        
+        return getattr(self,key)  
         
         
     def save(self,filename = False):
@@ -125,6 +150,7 @@ class VariableReference(dict):
         
         self = dill.load(open(filename,&#39;rb&#39;))        
         print(&#39;reloaded class information from &#39;,filename)
+        return self
         
     # def fromVarName(self,varstr):
     #     self.add(dict(( (i,globals()[i]) for i in varstr.split(&#39;,&#39;))) )</code></pre>
@@ -212,6 +238,7 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
          Number of entries: %d
          &#39;&#39;&#39;%self.index
         
+        
     def add(self,data):
         &#39;&#39;&#39;Add additional Data&#39;&#39;&#39;
         assert type(data) == dict
@@ -230,6 +257,30 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
         setattr(self, &#39;var_id_%i&#39;%self.index, data)
         setattr(self, name ,getattr(self,  &#39;var_id_%i&#39;%self.index))
         setattr(self, code ,getattr(self,  &#39;var_id_%i&#39;%self.index))
+        
+        
+    def match(self,snippet:str):
+        &#39;&#39;&#39; 
+        Retrun all keys which contain the `snippet` string 
+        
+        if snippet == list, match all snippets
+        &#39;&#39;&#39;
+        if type(snippet) is str:
+            return list(filter(lambda x: snippet.upper() in x, self.keys())) 
+        else :
+            keys = self.keys()
+            for i in snippet:
+                keys = list(filter(lambda x: i.upper() in x, keys) )
+            return keys
+                
+                
+                  
+        
+        
+    def get(self, key):
+        &#39;&#39;&#39; Get value from using key. This is a wrapper for getattr&#39;&#39;&#39;
+        
+        return getattr(self,key)  
         
         
     def save(self,filename = False):
@@ -258,7 +309,8 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
         assert type(filename) is str
         
         self = dill.load(open(filename,&#39;rb&#39;))        
-        print(&#39;reloaded class information from &#39;,filename)</code></pre>
+        print(&#39;reloaded class information from &#39;,filename)
+        return self</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -293,6 +345,21 @@ vars.add(<key1>,<key2>,<data dictionary>)</p></div>
     setattr(self, &#39;var_id_%i&#39;%self.index, data)
     setattr(self, name ,getattr(self,  &#39;var_id_%i&#39;%self.index))
     setattr(self, code ,getattr(self,  &#39;var_id_%i&#39;%self.index))</code></pre>
+</details>
+</dd>
+<dt id="aervis.variable_dict.var_classes.VariableReference.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, key)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get value from using key. This is a wrapper for getattr</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, key):
+    &#39;&#39;&#39; Get value from using key. This is a wrapper for getattr&#39;&#39;&#39;
+    
+    return getattr(self,key)  </code></pre>
 </details>
 </dd>
 <dt id="aervis.variable_dict.var_classes.VariableReference.keys"><code class="name flex">
@@ -339,7 +406,33 @@ dill.load(open(&lt;filename.dl&gt;,'rb'))
     assert type(filename) is str
     
     self = dill.load(open(filename,&#39;rb&#39;))        
-    print(&#39;reloaded class information from &#39;,filename)</code></pre>
+    print(&#39;reloaded class information from &#39;,filename)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="aervis.variable_dict.var_classes.VariableReference.match"><code class="name flex">
+<span>def <span class="ident">match</span></span>(<span>self, snippet: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrun all keys which contain the <code>snippet</code> string </p>
+<p>if snippet == list, match all snippets</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match(self,snippet:str):
+    &#39;&#39;&#39; 
+    Retrun all keys which contain the `snippet` string 
+    
+    if snippet == list, match all snippets
+    &#39;&#39;&#39;
+    if type(snippet) is str:
+        return list(filter(lambda x: snippet.upper() in x, self.keys())) 
+    else :
+        keys = self.keys()
+        for i in snippet:
+            keys = list(filter(lambda x: i.upper() in x, keys) )
+        return keys</code></pre>
 </details>
 </dd>
 <dt id="aervis.variable_dict.var_classes.VariableReference.save"><code class="name flex">
@@ -388,10 +481,12 @@ var_ref.save('<usefulidentifier>.dl')</p></div>
 </li>
 <li>
 <h4><code><a title="aervis.variable_dict.var_classes.VariableReference" href="#aervis.variable_dict.var_classes.VariableReference">VariableReference</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="aervis.variable_dict.var_classes.VariableReference.add" href="#aervis.variable_dict.var_classes.VariableReference.add">add</a></code></li>
+<li><code><a title="aervis.variable_dict.var_classes.VariableReference.get" href="#aervis.variable_dict.var_classes.VariableReference.get">get</a></code></li>
 <li><code><a title="aervis.variable_dict.var_classes.VariableReference.keys" href="#aervis.variable_dict.var_classes.VariableReference.keys">keys</a></code></li>
 <li><code><a title="aervis.variable_dict.var_classes.VariableReference.load" href="#aervis.variable_dict.var_classes.VariableReference.load">load</a></code></li>
+<li><code><a title="aervis.variable_dict.var_classes.VariableReference.match" href="#aervis.variable_dict.var_classes.VariableReference.match">match</a></code></li>
 <li><code><a title="aervis.variable_dict.var_classes.VariableReference.save" href="#aervis.variable_dict.var_classes.VariableReference.save">save</a></code></li>
 </ul>
 </li>
