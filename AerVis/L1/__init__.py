@@ -9,20 +9,31 @@ from . import I_MODE_SETUP_var as imv #this seems to percist, but vars can be su
 def run(self,save=True):
     
     
+    self.vd()
+    dataset = xarray.Dataset()
+    
+    
+    
+    
     # TEMPERATURE
     
     ''' Temperature '''
-    if self.model == 'tomcat': self.temperature = self.data['m01s16i004'][0] ## temp
-    else: pT = self.data['m01s00i004'][0] ## potential temp
+    if self.model == 'tomcat': pT = self.data['m01s00i004'][0] #potential_temperature
+    else: self.temperature = self.data['m01s16i004'][0] ## temp
         
 
     ''' AIR Pressure '''
     try:
         self.air_pressure=self.data['m01s00i408'][0]
-        if self.air_pressure.shape != self.temperature.shape:
-                    raise NameError('air pressure with different shape as potential_temperature')
+        
+        if self.model == 'tomcat':tshape = pT.shape
+        else: tshape = self.temperature.shape
+            
+        if self.air_pressure.shape != tshape:
+                raise NameError('air pressure with different shape as potential_temperature')
+        
 
-    except NameError:
+    except NameError or KeyError:
         ''' this will fall over''' 
         # air_pressure_nodim = self.data['m01s00i255'][0]
         # p_convert = iris.coords.AuxCoord(100000.0,
@@ -31,13 +42,34 @@ def run(self,save=True):
         self.air_pressure=self.data['m01s00i255'][0]*100000.0
 
 
+
+
+# air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+# try:
+#     air_pressure=iris.load(ukl.Obtain_name(folder,'m01s00i408'))[0]
+#     if tomcat==0:
+#         if air_pressure.shape!=pT.shape:
+#             raise NameError('air pressure with different shape as potential_temperature')
+#     else:
+#         if air_pressure.shape!=temperature.shape:
+#             raise NameError('air pressure with different shape as potential_temperature')
+# except:
+#     air_pressure_nodim=iris.load(ukl.Obtain_name(folder,'m01s00i255'))[0]
+#     p_convert = iris.coords.AuxCoord(100000.0,
+#                               long_name='convert_units',
+#                               units='Pa')
+#     air_pressure=air_pressure_nodim*p_convert
+# 
+    
+
+
     '''
     TOMCAT TEMP
     p0= 100000 # 1 hPa = 100 Pa 
     Rd=287.05 # J/kg/K
     cp=1005.46 # J/kg/K
     '''
-    if self.model != 'tomcat':self.temperature=pT*(self.air_pressure/100000.0)**(287.05/1005.46)
+    if self.model == 'tomcat':self.temperature=pT*(self.air_pressure/100000.0)**(287.05/1005.46)
         
         
         
@@ -46,22 +78,14 @@ def run(self,save=True):
     
     
     self.air_density=(self.air_pressure/(self.temperature*R_specific))
-
-
-
-
-
     self.particle_density_of_air=self.air_density/molar_mass_air*avogadro_number
 
-    # ukl.#print_cube_single_value(particle_density_of_air) # Do not remove
-    # 
-    # 
-    # 
+
     # air_density._var_name='air_density'
     # air_density.long_name='Density of air'
     # save_cube(air_density)
-    # 
-    # 
+
+    #save temp etc. 
     
     ###########################################
     
@@ -71,8 +95,7 @@ def run(self,save=True):
     '''
     
     
-    self.vd()
-    dataset = xarray.Dataset()
+
     
     # mass mixing ratios - particles concentration
     for entry in self.vr.match('nbr'):

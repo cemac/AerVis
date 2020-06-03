@@ -1,5 +1,9 @@
 '''
-Varialbe Calsses
+The Variable Dictionary class
+This contains all code for reading and updating the variable dictionary
+
+Usage:
+
 '''
 
 import dill

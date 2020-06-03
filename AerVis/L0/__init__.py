@@ -88,6 +88,10 @@ def run(name:str,loc:str='./',ncpu:int=4,__FILES__= False, stash_master=__FILE_S
     # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
     
+    if len(__FILES__)<2 :
+        import sys 
+        sys.exit('Not enough files found - check parameter. ')
+    
     
     print([stash_master,stash_mapping,stash_umi])
     

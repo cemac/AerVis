@@ -13,7 +13,7 @@ def get_names(name:str, path: str='./'):
     Searches for the format <name>.pn<date>.pp
     '''
     if path[-1]!='/': path+='/'
-    return glob.glob(path+name+'.pn*.pp')
+    return glob.glob(path+name+'.p*.pp')
 
 
 
