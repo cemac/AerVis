@@ -8,25 +8,17 @@ UKCA_postproc python library
 
 
 ## Install (not yet available)
+https://github.com/wolfiex/AerVis/wiki/0.-Install
 
-
-#### Developer using the GIT directory
+From the git repo, you can use:
 `python setup.py develop`
 
 
 ## Run Example
-For more examples and information see the <a href='https://github.com/wolfiex/AerVis/wiki'>WIKI</a>
+For  examples and information see the <a href='https://github.com/wolfiex/AerVis/wiki'>WIKI</a>
 
 
-#### Python library
-```
-from aervis import *
-
-dataclass = AerData('bk417a')
-# This creates a netCDF using the UKCA .pp files. If this already exists, we load the created netCDF instead 
-
-```
-#### CommandLine
+#### CommandLine - not yet working
 ``` ./aervis --name='bk417a' --loc='./' --stash='STASHMASTER|file2|file3 ```
 
 ## Dataset Preview with Panoply
