@@ -40,7 +40,7 @@ def get_names(name:str, path: str=&#39;./&#39;):
     Searches for the format &lt;name&gt;.pn&lt;date&gt;.pp
     &#39;&#39;&#39;
     if path[-1]!=&#39;/&#39;: path+=&#39;/&#39;
-    return glob.glob(path+name+&#39;.pn*.pp&#39;)
+    return glob.glob(path+name+&#39;.p*.pp&#39;)
 
 
 
@@ -90,7 +90,7 @@ Searches for the format <name>.pn<date>.pp</p></div>
     Searches for the format &lt;name&gt;.pn&lt;date&gt;.pp
     &#39;&#39;&#39;
     if path[-1]!=&#39;/&#39;: path+=&#39;/&#39;
-    return glob.glob(path+name+&#39;.pn*.pp&#39;)</code></pre>
+    return glob.glob(path+name+&#39;.p*.pp&#39;)</code></pre>
 </details>
 </dd>
 <dt id="aervis.L0.ppread.read_all"><code class="name flex">

@@ -7,11 +7,10 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
     
 '''
-dask 2.17.2
+conda install -c conda-forge nco
 '''    
-req = 'dill datetime dask>=2.17.2 xarray scipy'.split()
+req = 'dill datetime dask>=2.17.2 xarray scipy nco'.split()
 req.append('iris @ https://github.com/SciTools/iris/archive/v2.4.0.tar.gz')
-
 print('requirements: ',req)
 
 setup(
@@ -38,3 +37,8 @@ setup(
 )
 
 #/opt/anaconda3/lib/python3.7/site-packages/aervis.egg-link
+
+print('For advanced utilities please install netCDF Operator (NCO) http://nco.sourceforge.net')
+'''
+conda install -c conda-forge nco
+'''    

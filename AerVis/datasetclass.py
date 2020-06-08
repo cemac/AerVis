@@ -2,7 +2,7 @@
 The AerVis dataset class
 This contains functions regarding all Levels of the library code. 
 '''
-import os,xarray,time,re
+import os,xarray,time,re,sys
 from .variable_dict import VariableReference
 
 ''' file arguments''' 
@@ -19,7 +19,7 @@ class AerData():
     '''
 
     
-    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4):
+    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4,allowkill=True):
         '''
         On initiation, the class checks for a netCDF file which exists with the provided 'name'. If such a file does not exist we run the L0 processing module and create one. 
         
@@ -48,12 +48,17 @@ class AerData():
         self.model = 'UKCA'
         
         self.nc_loc = '%s%s.nc'%(__LOC__,name)
+        self.allowkill = allowkill
         
         if os.path.exists(self.nc_loc):
             print ('---- Loading File ---- : '+self.nc_loc)
             self.exists = True
             start = time.perf_counter()
-            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            try:self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            except Exception as e:
+                self.killreading()
+                self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+                
             print (' %.2f s loadtimeself'%(time.perf_counter() - start) )
                         
         else:
@@ -84,12 +89,12 @@ class AerData():
             print (' %.2f minutes - written to %s'%(end/60,self.nc_loc) )
             
             ## L1 append coords
-            from .L1.coords import coord_list
-            self.add_coords(coord_list)
-            self.attrs={'LOt_delta':end}
-            print('coords loaded, but not added to netCDF file')
-            ### apppend
-            
+            # from .L1.coords import coord_list
+            # self.add_coords(coord_list)
+            # self.attrs={'LOt_delta':end}
+            # print('coords loaded, but not added to netCDF file')
+            # ### apppend
+            # 
             
         
         # APPENDFN
@@ -142,6 +147,83 @@ class AerData():
          --------------------------------
          ''' + self.data.__str__()
          
+    def getL1(self,imode=False,overwrite=False):
+        '''
+        Run the Generic L1 processing. 
+        Arguments:
+            imode - i mode config file path including .py prefix
+            overwrite - run L1 again regardless of existing data
+        '''    
+            
+        from . import L1
+        
+        if L1.run(self, imode = imode , overwrite = overwrite) :
+            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        else:
+            import sys
+            sys.exit('L1 failed')
+        
+    def rmL1(self,overwrite:bool = False):
+        ''' 
+        Sometimes incorrect data gets written to the netCDF file
+        Rather than having to recompute the base, we can purge elements from it
+        
+        This function assumes you are able to load the whole netCDF into memory!
+        
+        Arguments:
+            overwrite - moves the copied file in place of the prvious one upon completion. 
+        
+        '''
+        print('Removing all L1 files - this can be a slow(ish) process as it invlolves rewriting the whole netCDF file.')
+        # 
+        # a = input('To proceed, hit Enter \n')
+        
+        print('computing data')
+        var = list(filter(lambda x: x in self.data, self.data.L1_variables.split()))
+        print ('Variables\n','\n'.join(var))
+        self.data = self.data.drop(var)
+        
+        print('---coords---')
+        for c in self.data.L1_coords.split() :
+            try: 
+                del self.data.coords[c]  
+                print (c)
+            except:None
+        
+        print('---attrs---')
+        for a in ('L1_variables L1_coords L1_attrs  L1_delta_nowrite'+self.data.L1_attrs).split() :
+            try: 
+                del self.data.attrs[a]  
+                print (a)
+            except:None
+            
+        self.data.compute()
+            
+        start = time.perf_counter()
+        
+        loc = self.nc_loc
+        self.nc_loc = self.nc_loc.split('/')
+        self.nc_loc[-1] = 'noL1_'+self.nc_loc[-1]
+        self.nc_loc = '/'.join(self.nc_loc)
+        
+        print('writing to ',self.nc_loc)
+        self.data.to_netcdf(self.nc_loc,mode='w',format='NETCDF4',compute=False)
+    
+        end = time.perf_counter() - start
+        print (' %.2f minutes - rewritten (-L1) to %s'%(end/60,self.nc_loc) )
+        
+        if overwrite:
+            print(':copying file over the previous one:')
+            import shutil  
+            shutil.move(self.nc_loc, loc)
+            self.nc_loc = loc  
+        
+        self.data.close()
+        # reopen dataset
+        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        
+        
+        
          
     def add_coords(self,coordinates:list):
         '''
@@ -161,9 +243,10 @@ class AerData():
         
     def vd(self):
         ''' read variable reference object '''
-        from .L0 import getVR
-        self.vr = getVR(self.data.stashname)
-        
+        if not hasattr(self,'vr'): 
+            from .L0 import getVR
+            self.vr = getVR(self.data.stashname)
+            
     #     if '.dl' not in self.data.stashname:
     #         filename+='.dl'
     #     self.vr = dill.load(open(filename,'rb'))
@@ -212,23 +295,7 @@ class AerData():
                 import sys 
                 sys.exit(e)
                 
-            print('''
-            --- Failed at update ---
-             This is likely because the file is already open in another process. 
-             Closing all files which have the file open using:
-                lsof %s (finds all processes which have the file open)
-                kill -9 pid (kills each process id from lsof)
-            --- Trying again ---
-             '''%self.nc_loc)
-            
-            pids= [None]*2
-            while len(pids)>0:
-                print('Waiting for open instances to end...')
-                proc = os.popen('lsof %s'%self.nc_loc).read()
-                pids = re.findall(r'\n[^\s]* (\d+)',proc) 
-                for i in pids: os.popen('kill -9 %d'%int(i)).read()
-                time.sleep(2)# wait for the processe to end 
-             
+            self.killreading()
             self.update(attrs=attrs,datasets=datasets,coords=coords,err=True)
              
               
@@ -238,6 +305,29 @@ class AerData():
         # reopen dataset
         self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
 
+    def killreading(self):
+                import os , re
+                if not self.allowkill:
+                    print('Automatic purging of processing reading the file not allowed. Please close these manually')
+                    return None 
+                    
+                print('''
+                --- Failed at update ---
+                 This is likely because the file is already open in another process. 
+                 Closing all files which have the file open using:
+                    lsof %s (finds all processes which have the file open)
+                    kill -9 pid (kills each process id from lsof)
+                --- Trying again ---
+                 '''%self.nc_loc)
+                
+                pids= [None]*2
+                while len(pids)>0:
+                    print('Waiting for open instances to end...')
+                    proc = os.popen('lsof %s'%self.nc_loc).read()
+                    pids = re.findall(r'\n[^\s]* (\d+)',proc) 
+                    for i in pids: os.popen('kill -9 %d'%int(i)).read()
+                    time.sleep(2)# wait for the processe to end 
+                print ('finished, try again')
 
 '''xarray.open_mfdataset
 xarray.open_mfdataset(paths, chunks=None, concat_dim='_not_supplied', compat='no_conflicts', preprocess=None, engine=None, lock=None, data_vars='all', coords='different', combine='_old_auto', autoclose=None, parallel=False, join='outer', attrs_file=None, **kwargs)

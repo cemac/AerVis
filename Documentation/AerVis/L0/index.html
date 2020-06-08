@@ -134,6 +134,10 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
     
+    if len(__FILES__)&lt;2 :
+        import sys 
+        sys.exit(&#39;Not enough files found - check parameter. &#39;)
+    
     
     print([stash_master,stash_mapping,stash_umi])
     
@@ -256,6 +260,10 @@ def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=
     if not __FILES__:__FILES__ = get_names(name,path=loc)
     # __FILES__ = __FILES__[:2]
     __FILES__.insert(0,__OROGRAPY__)
+    
+    if len(__FILES__)&lt;2 :
+        import sys 
+        sys.exit(&#39;Not enough files found - check parameter. &#39;)
     
     
     print([stash_master,stash_mapping,stash_umi])

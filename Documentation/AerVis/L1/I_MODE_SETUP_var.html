@@ -75,45 +75,40 @@ if I_MODE_SETUP==8:
 
     # Density
     rhocomp=[1769.0,1500.0,1500.0,1600.0,2650.0]#,1500.0]#kg/m3
-&#39;&#39;&#39;
-# Put species (component) and modal parameters into dictionaries
-species_attributes={}
-for i in range (len (component_names)):
-    species_attributes[component_names[i]]=ukl.SpeciesAttributes(component_names[i],mm[i],
-    iris.coords.AuxCoord(rhocomp[i],long_name=&#39;density&#39;,units=&#39;kilograms-meter^-3&#39;),
-    kappa_component[i])
+    
+    
+    
+    
+    
 
-modal_attributes={}
-for i in range (len (mode_names)):
-    modal_attributes[mode_names[i]]=ukl.ModalAttributes(mode_names[i],sigma[i],ddplim0[i],ddplim1[i],modesol[i],mode_choice[i])
+    
 &#39;&#39;&#39;
-#  To get the values out use, e.g.:
-#print species_attributes[&#39;so4&#39;].name
-#print species_attributes[&#39;so4&#39;].mm
-#print species_attributes[&#39;so4&#39;].rhocomp
+ukca library
 
-#print modal_attributes[&#39;nuc_sol&#39;].name
-#print modal_attributes[&#39;nuc_sol&#39;].sigmag
-#print modal_attributes[&#39;acc_sol&#39;].ddplim1
-&#39;&#39;&#39;
-#Section to have a overview of how the modes looks like
-plot=0#to plot, set to non 0
-if plot:
-    plt.figure(figsize=(15,10))
-    ax=plt.subplot(211)
-    for mode in modal_attributes.itervalues():
-        print mode
-        mode.plot_mode((mode.ddplim1-mode.ddplim0)/2.,limits=1)
-    plt.legend()
-    #plt.show()
-    bx=plt.subplot(212)
-    for mode in modal_attributes.itervalues():
-        print mode
-        mode.plot_mode((mode.ddplim1-mode.ddplim0)/2.,real_PDF=1)
-    plt.legend()
-    plt.show()
-&#39;&#39;&#39;
-#modal_attributes[&#39;acc_sol&#39;].plot_mode(0.5e-6)</code></pre>
+use this instead rhocomp[ims.component_names.index(comp_name)]
+
+
+class SpeciesAttributes:
+    def __init__(self,name,mm,rhocomp,kappa,description=&#39;None&#39;):
+        self.name=name
+        self.mm=mm
+        self.rhocomp=rhocomp
+        self.kappa=kappa
+        self.description=description
+
+
+class ModalAttributes:
+    def __init__(self,name,sigma,ddplim0,ddplim1,modesol,mode_choice,description=&#39;None&#39;):
+        self.name=name
+        self.sigma=sigma
+        self.ddplim0=ddplim0
+        self.ddplim1=ddplim1
+        self.modesol=modesol
+        self.mode_choice=mode_choice
+        self.description=description
+        
+        
+&#39;&#39;&#39;</code></pre>
 </details>
 </section>
 <section>

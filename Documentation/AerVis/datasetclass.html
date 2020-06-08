@@ -31,7 +31,7 @@ This contains functions regarding all Levels of the library code.</p>
 The AerVis dataset class
 This contains functions regarding all Levels of the library code. 
 &#39;&#39;&#39;
-import os,xarray,time,re
+import os,xarray,time,re,sys
 from .variable_dict import VariableReference
 
 &#39;&#39;&#39; file arguments&#39;&#39;&#39; 
@@ -48,7 +48,7 @@ class AerData():
     &#39;&#39;&#39;
 
     
-    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4):
+    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4,allowkill=True):
         &#39;&#39;&#39;
         On initiation, the class checks for a netCDF file which exists with the provided &#39;name&#39;. If such a file does not exist we run the L0 processing module and create one. 
         
@@ -77,12 +77,17 @@ class AerData():
         self.model = &#39;UKCA&#39;
         
         self.nc_loc = &#39;%s%s.nc&#39;%(__LOC__,name)
+        self.allowkill = allowkill
         
         if os.path.exists(self.nc_loc):
             print (&#39;---- Loading File ---- : &#39;+self.nc_loc)
             self.exists = True
             start = time.perf_counter()
-            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            try:self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            except Exception as e:
+                self.killreading()
+                self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+                
             print (&#39; %.2f s loadtimeself&#39;%(time.perf_counter() - start) )
                         
         else:
@@ -113,12 +118,12 @@ class AerData():
             print (&#39; %.2f minutes - written to %s&#39;%(end/60,self.nc_loc) )
             
             ## L1 append coords
-            from .L1.coords import coord_list
-            self.add_coords(coord_list)
-            self.attrs={&#39;LOt_delta&#39;:end}
-            print(&#39;coords loaded, but not added to netCDF file&#39;)
-            ### apppend
-            
+            # from .L1.coords import coord_list
+            # self.add_coords(coord_list)
+            # self.attrs={&#39;LOt_delta&#39;:end}
+            # print(&#39;coords loaded, but not added to netCDF file&#39;)
+            # ### apppend
+            # 
             
         
         # APPENDFN
@@ -171,6 +176,83 @@ class AerData():
          --------------------------------
          &#39;&#39;&#39; + self.data.__str__()
          
+    def getL1(self,imode=False,overwrite=False):
+        &#39;&#39;&#39;
+        Run the Generic L1 processing. 
+        Arguments:
+            imode - i mode config file path including .py prefix
+            overwrite - run L1 again regardless of existing data
+        &#39;&#39;&#39;    
+            
+        from . import L1
+        
+        if L1.run(self, imode = imode , overwrite = overwrite) :
+            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        else:
+            import sys
+            sys.exit(&#39;L1 failed&#39;)
+        
+    def rmL1(self,overwrite:bool = False):
+        &#39;&#39;&#39; 
+        Sometimes incorrect data gets written to the netCDF file
+        Rather than having to recompute the base, we can purge elements from it
+        
+        This function assumes you are able to load the whole netCDF into memory!
+        
+        Arguments:
+            overwrite - moves the copied file in place of the prvious one upon completion. 
+        
+        &#39;&#39;&#39;
+        print(&#39;Removing all L1 files - this can be a slow(ish) process as it invlolves rewriting the whole netCDF file.&#39;)
+        # 
+        # a = input(&#39;To proceed, hit Enter \n&#39;)
+        
+        print(&#39;computing data&#39;)
+        var = list(filter(lambda x: x in self.data, self.data.L1_variables.split()))
+        print (&#39;Variables\n&#39;,&#39;\n&#39;.join(var))
+        self.data = self.data.drop(var)
+        
+        print(&#39;---coords---&#39;)
+        for c in self.data.L1_coords.split() :
+            try: 
+                del self.data.coords[c]  
+                print (c)
+            except:None
+        
+        print(&#39;---attrs---&#39;)
+        for a in (&#39;L1_variables L1_coords L1_attrs  L1_delta_nowrite&#39;+self.data.L1_attrs).split() :
+            try: 
+                del self.data.attrs[a]  
+                print (a)
+            except:None
+            
+        self.data.compute()
+            
+        start = time.perf_counter()
+        
+        loc = self.nc_loc
+        self.nc_loc = self.nc_loc.split(&#39;/&#39;)
+        self.nc_loc[-1] = &#39;noL1_&#39;+self.nc_loc[-1]
+        self.nc_loc = &#39;/&#39;.join(self.nc_loc)
+        
+        print(&#39;writing to &#39;,self.nc_loc)
+        self.data.to_netcdf(self.nc_loc,mode=&#39;w&#39;,format=&#39;NETCDF4&#39;,compute=False)
+    
+        end = time.perf_counter() - start
+        print (&#39; %.2f minutes - rewritten (-L1) to %s&#39;%(end/60,self.nc_loc) )
+        
+        if overwrite:
+            print(&#39;:copying file over the previous one:&#39;)
+            import shutil  
+            shutil.move(self.nc_loc, loc)
+            self.nc_loc = loc  
+        
+        self.data.close()
+        # reopen dataset
+        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        
+        
+        
          
     def add_coords(self,coordinates:list):
         &#39;&#39;&#39;
@@ -190,9 +272,10 @@ class AerData():
         
     def vd(self):
         &#39;&#39;&#39; read variable reference object &#39;&#39;&#39;
-        from .L0 import getVR
-        self.vr = getVR(self.data.stashname)
-        
+        if not hasattr(self,&#39;vr&#39;): 
+            from .L0 import getVR
+            self.vr = getVR(self.data.stashname)
+            
     #     if &#39;.dl&#39; not in self.data.stashname:
     #         filename+=&#39;.dl&#39;
     #     self.vr = dill.load(open(filename,&#39;rb&#39;))
@@ -241,23 +324,7 @@ class AerData():
                 import sys 
                 sys.exit(e)
                 
-            print(&#39;&#39;&#39;
-            --- Failed at update ---
-             This is likely because the file is already open in another process. 
-             Closing all files which have the file open using:
-                lsof %s (finds all processes which have the file open)
-                kill -9 pid (kills each process id from lsof)
-            --- Trying again ---
-             &#39;&#39;&#39;%self.nc_loc)
-            
-            pids= [None]*2
-            while len(pids)&gt;0:
-                print(&#39;Waiting for open instances to end...&#39;)
-                proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
-                pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
-                for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
-                time.sleep(2)# wait for the processe to end 
-             
+            self.killreading()
             self.update(attrs=attrs,datasets=datasets,coords=coords,err=True)
              
               
@@ -267,6 +334,29 @@ class AerData():
         # reopen dataset
         self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
 
+    def killreading(self):
+                import os , re
+                if not self.allowkill:
+                    print(&#39;Automatic purging of processing reading the file not allowed. Please close these manually&#39;)
+                    return None 
+                    
+                print(&#39;&#39;&#39;
+                --- Failed at update ---
+                 This is likely because the file is already open in another process. 
+                 Closing all files which have the file open using:
+                    lsof %s (finds all processes which have the file open)
+                    kill -9 pid (kills each process id from lsof)
+                --- Trying again ---
+                 &#39;&#39;&#39;%self.nc_loc)
+                
+                pids= [None]*2
+                while len(pids)&gt;0:
+                    print(&#39;Waiting for open instances to end...&#39;)
+                    proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
+                    pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
+                    for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
+                    time.sleep(2)# wait for the processe to end 
+                print (&#39;finished, try again&#39;)
 
 &#39;&#39;&#39;xarray.open_mfdataset
 xarray.open_mfdataset(paths, chunks=None, concat_dim=&#39;_not_supplied&#39;, compat=&#39;no_conflicts&#39;, preprocess=None, engine=None, lock=None, data_vars=&#39;all&#39;, coords=&#39;different&#39;, combine=&#39;_old_auto&#39;, autoclose=None, parallel=False, join=&#39;outer&#39;, attrs_file=None, **kwargs)
@@ -285,7 +375,7 @@ Open multiple files as a single dataset.&#39;&#39;&#39;
 <dl>
 <dt id="aervis.datasetclass.AerData"><code class="flex name class">
 <span>class <span class="ident">AerData</span></span>
-<span>(</span><span>name: str, ncpu=4)</span>
+<span>(</span><span>name: str, ncpu=4, allowkill=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>The data class for model output. </p>
@@ -315,7 +405,7 @@ ncpu
     &#39;&#39;&#39;
 
     
-    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4):
+    def __init__(self,name:str, __FILES__:list=False,__LOC__:str=False,ncpu = 4,allowkill=True):
         &#39;&#39;&#39;
         On initiation, the class checks for a netCDF file which exists with the provided &#39;name&#39;. If such a file does not exist we run the L0 processing module and create one. 
         
@@ -344,12 +434,17 @@ ncpu
         self.model = &#39;UKCA&#39;
         
         self.nc_loc = &#39;%s%s.nc&#39;%(__LOC__,name)
+        self.allowkill = allowkill
         
         if os.path.exists(self.nc_loc):
             print (&#39;---- Loading File ---- : &#39;+self.nc_loc)
             self.exists = True
             start = time.perf_counter()
-            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            try:self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+            except Exception as e:
+                self.killreading()
+                self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+                
             print (&#39; %.2f s loadtimeself&#39;%(time.perf_counter() - start) )
                         
         else:
@@ -380,12 +475,12 @@ ncpu
             print (&#39; %.2f minutes - written to %s&#39;%(end/60,self.nc_loc) )
             
             ## L1 append coords
-            from .L1.coords import coord_list
-            self.add_coords(coord_list)
-            self.attrs={&#39;LOt_delta&#39;:end}
-            print(&#39;coords loaded, but not added to netCDF file&#39;)
-            ### apppend
-            
+            # from .L1.coords import coord_list
+            # self.add_coords(coord_list)
+            # self.attrs={&#39;LOt_delta&#39;:end}
+            # print(&#39;coords loaded, but not added to netCDF file&#39;)
+            # ### apppend
+            # 
             
         
         # APPENDFN
@@ -438,6 +533,83 @@ ncpu
          --------------------------------
          &#39;&#39;&#39; + self.data.__str__()
          
+    def getL1(self,imode=False,overwrite=False):
+        &#39;&#39;&#39;
+        Run the Generic L1 processing. 
+        Arguments:
+            imode - i mode config file path including .py prefix
+            overwrite - run L1 again regardless of existing data
+        &#39;&#39;&#39;    
+            
+        from . import L1
+        
+        if L1.run(self, imode = imode , overwrite = overwrite) :
+            self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        else:
+            import sys
+            sys.exit(&#39;L1 failed&#39;)
+        
+    def rmL1(self,overwrite:bool = False):
+        &#39;&#39;&#39; 
+        Sometimes incorrect data gets written to the netCDF file
+        Rather than having to recompute the base, we can purge elements from it
+        
+        This function assumes you are able to load the whole netCDF into memory!
+        
+        Arguments:
+            overwrite - moves the copied file in place of the prvious one upon completion. 
+        
+        &#39;&#39;&#39;
+        print(&#39;Removing all L1 files - this can be a slow(ish) process as it invlolves rewriting the whole netCDF file.&#39;)
+        # 
+        # a = input(&#39;To proceed, hit Enter \n&#39;)
+        
+        print(&#39;computing data&#39;)
+        var = list(filter(lambda x: x in self.data, self.data.L1_variables.split()))
+        print (&#39;Variables\n&#39;,&#39;\n&#39;.join(var))
+        self.data = self.data.drop(var)
+        
+        print(&#39;---coords---&#39;)
+        for c in self.data.L1_coords.split() :
+            try: 
+                del self.data.coords[c]  
+                print (c)
+            except:None
+        
+        print(&#39;---attrs---&#39;)
+        for a in (&#39;L1_variables L1_coords L1_attrs  L1_delta_nowrite&#39;+self.data.L1_attrs).split() :
+            try: 
+                del self.data.attrs[a]  
+                print (a)
+            except:None
+            
+        self.data.compute()
+            
+        start = time.perf_counter()
+        
+        loc = self.nc_loc
+        self.nc_loc = self.nc_loc.split(&#39;/&#39;)
+        self.nc_loc[-1] = &#39;noL1_&#39;+self.nc_loc[-1]
+        self.nc_loc = &#39;/&#39;.join(self.nc_loc)
+        
+        print(&#39;writing to &#39;,self.nc_loc)
+        self.data.to_netcdf(self.nc_loc,mode=&#39;w&#39;,format=&#39;NETCDF4&#39;,compute=False)
+    
+        end = time.perf_counter() - start
+        print (&#39; %.2f minutes - rewritten (-L1) to %s&#39;%(end/60,self.nc_loc) )
+        
+        if overwrite:
+            print(&#39;:copying file over the previous one:&#39;)
+            import shutil  
+            shutil.move(self.nc_loc, loc)
+            self.nc_loc = loc  
+        
+        self.data.close()
+        # reopen dataset
+        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+        
+        
+        
          
     def add_coords(self,coordinates:list):
         &#39;&#39;&#39;
@@ -457,9 +629,10 @@ ncpu
         
     def vd(self):
         &#39;&#39;&#39; read variable reference object &#39;&#39;&#39;
-        from .L0 import getVR
-        self.vr = getVR(self.data.stashname)
-        
+        if not hasattr(self,&#39;vr&#39;): 
+            from .L0 import getVR
+            self.vr = getVR(self.data.stashname)
+            
     #     if &#39;.dl&#39; not in self.data.stashname:
     #         filename+=&#39;.dl&#39;
     #     self.vr = dill.load(open(filename,&#39;rb&#39;))
@@ -508,23 +681,7 @@ ncpu
                 import sys 
                 sys.exit(e)
                 
-            print(&#39;&#39;&#39;
-            --- Failed at update ---
-             This is likely because the file is already open in another process. 
-             Closing all files which have the file open using:
-                lsof %s (finds all processes which have the file open)
-                kill -9 pid (kills each process id from lsof)
-            --- Trying again ---
-             &#39;&#39;&#39;%self.nc_loc)
-            
-            pids= [None]*2
-            while len(pids)&gt;0:
-                print(&#39;Waiting for open instances to end...&#39;)
-                proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
-                pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
-                for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
-                time.sleep(2)# wait for the processe to end 
-             
+            self.killreading()
             self.update(attrs=attrs,datasets=datasets,coords=coords,err=True)
              
               
@@ -532,7 +689,31 @@ ncpu
         end = time.perf_counter() - start
         print (&#39; %.2f minutes - appended to %s&#39;%(end/60,self.nc_loc) )
         # reopen dataset
-        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)</code></pre>
+        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+
+    def killreading(self):
+                import os , re
+                if not self.allowkill:
+                    print(&#39;Automatic purging of processing reading the file not allowed. Please close these manually&#39;)
+                    return None 
+                    
+                print(&#39;&#39;&#39;
+                --- Failed at update ---
+                 This is likely because the file is already open in another process. 
+                 Closing all files which have the file open using:
+                    lsof %s (finds all processes which have the file open)
+                    kill -9 pid (kills each process id from lsof)
+                --- Trying again ---
+                 &#39;&#39;&#39;%self.nc_loc)
+                
+                pids= [None]*2
+                while len(pids)&gt;0:
+                    print(&#39;Waiting for open instances to end...&#39;)
+                    proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
+                    pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
+                    for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
+                    time.sleep(2)# wait for the processe to end 
+                print (&#39;finished, try again&#39;)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -554,6 +735,35 @@ coord_list: nested <em>list</em> with
     &#39;&#39;&#39;
     from .L1 import coords 
     self.data = coords.add(self.data,coordinates)</code></pre>
+</details>
+</dd>
+<dt id="aervis.datasetclass.AerData.getL1"><code class="name flex">
+<span>def <span class="ident">getL1</span></span>(<span>self, imode=False, overwrite=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the Generic L1 processing. </p>
+<h2 id="arguments">Arguments</h2>
+<p>imode - i mode config file path including .py prefix
+overwrite - run L1 again regardless of existing data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getL1(self,imode=False,overwrite=False):
+    &#39;&#39;&#39;
+    Run the Generic L1 processing. 
+    Arguments:
+        imode - i mode config file path including .py prefix
+        overwrite - run L1 again regardless of existing data
+    &#39;&#39;&#39;    
+        
+    from . import L1
+    
+    if L1.run(self, imode = imode , overwrite = overwrite) :
+        self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)
+    else:
+        import sys
+        sys.exit(&#39;L1 failed&#39;)</code></pre>
 </details>
 </dd>
 <dt id="aervis.datasetclass.AerData.get_attrs"><code class="name flex">
@@ -595,6 +805,113 @@ coord_list: nested <em>list</em> with
 </summary>
 <pre><code class="python">def keys(self):
     return dir(self)</code></pre>
+</details>
+</dd>
+<dt id="aervis.datasetclass.AerData.killreading"><code class="name flex">
+<span>def <span class="ident">killreading</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def killreading(self):
+            import os , re
+            if not self.allowkill:
+                print(&#39;Automatic purging of processing reading the file not allowed. Please close these manually&#39;)
+                return None 
+                
+            print(&#39;&#39;&#39;
+            --- Failed at update ---
+             This is likely because the file is already open in another process. 
+             Closing all files which have the file open using:
+                lsof %s (finds all processes which have the file open)
+                kill -9 pid (kills each process id from lsof)
+            --- Trying again ---
+             &#39;&#39;&#39;%self.nc_loc)
+            
+            pids= [None]*2
+            while len(pids)&gt;0:
+                print(&#39;Waiting for open instances to end...&#39;)
+                proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
+                pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
+                for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
+                time.sleep(2)# wait for the processe to end 
+            print (&#39;finished, try again&#39;)</code></pre>
+</details>
+</dd>
+<dt id="aervis.datasetclass.AerData.rmL1"><code class="name flex">
+<span>def <span class="ident">rmL1</span></span>(<span>self, overwrite: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sometimes incorrect data gets written to the netCDF file
+Rather than having to recompute the base, we can purge elements from it</p>
+<p>This function assumes you are able to load the whole netCDF into memory!</p>
+<h2 id="arguments">Arguments</h2>
+<p>overwrite - moves the copied file in place of the prvious one upon completion.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rmL1(self,overwrite:bool = False):
+    &#39;&#39;&#39; 
+    Sometimes incorrect data gets written to the netCDF file
+    Rather than having to recompute the base, we can purge elements from it
+    
+    This function assumes you are able to load the whole netCDF into memory!
+    
+    Arguments:
+        overwrite - moves the copied file in place of the prvious one upon completion. 
+    
+    &#39;&#39;&#39;
+    print(&#39;Removing all L1 files - this can be a slow(ish) process as it invlolves rewriting the whole netCDF file.&#39;)
+    # 
+    # a = input(&#39;To proceed, hit Enter \n&#39;)
+    
+    print(&#39;computing data&#39;)
+    var = list(filter(lambda x: x in self.data, self.data.L1_variables.split()))
+    print (&#39;Variables\n&#39;,&#39;\n&#39;.join(var))
+    self.data = self.data.drop(var)
+    
+    print(&#39;---coords---&#39;)
+    for c in self.data.L1_coords.split() :
+        try: 
+            del self.data.coords[c]  
+            print (c)
+        except:None
+    
+    print(&#39;---attrs---&#39;)
+    for a in (&#39;L1_variables L1_coords L1_attrs  L1_delta_nowrite&#39;+self.data.L1_attrs).split() :
+        try: 
+            del self.data.attrs[a]  
+            print (a)
+        except:None
+        
+    self.data.compute()
+        
+    start = time.perf_counter()
+    
+    loc = self.nc_loc
+    self.nc_loc = self.nc_loc.split(&#39;/&#39;)
+    self.nc_loc[-1] = &#39;noL1_&#39;+self.nc_loc[-1]
+    self.nc_loc = &#39;/&#39;.join(self.nc_loc)
+    
+    print(&#39;writing to &#39;,self.nc_loc)
+    self.data.to_netcdf(self.nc_loc,mode=&#39;w&#39;,format=&#39;NETCDF4&#39;,compute=False)
+
+    end = time.perf_counter() - start
+    print (&#39; %.2f minutes - rewritten (-L1) to %s&#39;%(end/60,self.nc_loc) )
+    
+    if overwrite:
+        print(&#39;:copying file over the previous one:&#39;)
+        import shutil  
+        shutil.move(self.nc_loc, loc)
+        self.nc_loc = loc  
+    
+    self.data.close()
+    # reopen dataset
+    self.data = xarray.open_dataset(self.nc_loc, engine=engine,lock=lock)</code></pre>
 </details>
 </dd>
 <dt id="aervis.datasetclass.AerData.update"><code class="name flex">
@@ -654,23 +971,7 @@ coordinates - an xarray coordinate dataset</p>
             import sys 
             sys.exit(e)
             
-        print(&#39;&#39;&#39;
-        --- Failed at update ---
-         This is likely because the file is already open in another process. 
-         Closing all files which have the file open using:
-            lsof %s (finds all processes which have the file open)
-            kill -9 pid (kills each process id from lsof)
-        --- Trying again ---
-         &#39;&#39;&#39;%self.nc_loc)
-        
-        pids= [None]*2
-        while len(pids)&gt;0:
-            print(&#39;Waiting for open instances to end...&#39;)
-            proc = os.popen(&#39;lsof %s&#39;%self.nc_loc).read()
-            pids = re.findall(r&#39;\n[^\s]* (\d+)&#39;,proc) 
-            for i in pids: os.popen(&#39;kill -9 %d&#39;%int(i)).read()
-            time.sleep(2)# wait for the processe to end 
-         
+        self.killreading()
         self.update(attrs=attrs,datasets=datasets,coords=coords,err=True)
          
           
@@ -692,8 +993,9 @@ coordinates - an xarray coordinate dataset</p>
 </summary>
 <pre><code class="python">def vd(self):
     &#39;&#39;&#39; read variable reference object &#39;&#39;&#39;
-    from .L0 import getVR
-    self.vr = getVR(self.data.stashname)</code></pre>
+    if not hasattr(self,&#39;vr&#39;): 
+        from .L0 import getVR
+        self.vr = getVR(self.data.stashname)</code></pre>
 </details>
 </dd>
 </dl>
@@ -718,9 +1020,12 @@ coordinates - an xarray coordinate dataset</p>
 <h4><code><a title="aervis.datasetclass.AerData" href="#aervis.datasetclass.AerData">AerData</a></code></h4>
 <ul class="two-column">
 <li><code><a title="aervis.datasetclass.AerData.add_coords" href="#aervis.datasetclass.AerData.add_coords">add_coords</a></code></li>
+<li><code><a title="aervis.datasetclass.AerData.getL1" href="#aervis.datasetclass.AerData.getL1">getL1</a></code></li>
 <li><code><a title="aervis.datasetclass.AerData.get_attrs" href="#aervis.datasetclass.AerData.get_attrs">get_attrs</a></code></li>
 <li><code><a title="aervis.datasetclass.AerData.get_coords" href="#aervis.datasetclass.AerData.get_coords">get_coords</a></code></li>
 <li><code><a title="aervis.datasetclass.AerData.keys" href="#aervis.datasetclass.AerData.keys">keys</a></code></li>
+<li><code><a title="aervis.datasetclass.AerData.killreading" href="#aervis.datasetclass.AerData.killreading">killreading</a></code></li>
+<li><code><a title="aervis.datasetclass.AerData.rmL1" href="#aervis.datasetclass.AerData.rmL1">rmL1</a></code></li>
 <li><code><a title="aervis.datasetclass.AerData.update" href="#aervis.datasetclass.AerData.update">update</a></code></li>
 <li><code><a title="aervis.datasetclass.AerData.vd" href="#aervis.datasetclass.AerData.vd">vd</a></code></li>
 </ul>
