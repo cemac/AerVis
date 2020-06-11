@@ -8,11 +8,15 @@ UKCA_postproc python library
 
 
 ## Install (not yet available)
-https://github.com/wolfiex/AerVis/wiki/0.-Install
+First make sure iris and cartopy are installed:
+`conda install -c conda-forge iris cartopy`
 
 From the git repo, you can use:
 `python setup.py develop`
 
+
+
+https://github.com/wolfiex/AerVis/wiki/0.-Install
 
 ## Run Example
 For  examples and information see the <a href='https://github.com/wolfiex/AerVis/wiki'>WIKI</a>
