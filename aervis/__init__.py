@@ -18,9 +18,6 @@ University of Leeds 2016-2020+
 version = '0.0.2'
 print ('AerVis '+version)
 
-from .variable_dict import *
-from .datasetclass import *
-
 #d = AerData('bk417a')
 
 
