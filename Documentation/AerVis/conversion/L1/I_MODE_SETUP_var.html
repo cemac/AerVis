@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>aervis API documentation</title>
-<meta name="description" content="Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis …" />
+<title>aervis.conversion.L1.I_MODE_SETUP_var API documentation</title>
+<meta name="description" content="Routine to store model variables not given in the ouput files …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,56 +17,101 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>aervis</code></h1>
+<h1 class="title">Module <code>aervis.conversion.L1.I_MODE_SETUP_var</code></h1>
 </header>
 <section id="section-intro">
-<p>Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.</p>
-<p>Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
-University of Leeds 2016-2020+</p>
+<p>Routine to store model variables not given in the ouput files.</p>
+<p>Variables are set within the modules file, depending on the I_MODE_SETUP used</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis.
 
+Routine to store model variables not given in the ouput files.
 
-Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle
-
-
-D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | &lt;a href=&#39;https://www.cemac.leeds.ac.uk&#39;&gt; CEMAC &lt;/a&gt;|
-University of Leeds 2016-2020+
+Variables are set within the modules file, depending on the I_MODE_SETUP used
 
 
 &#34;&#34;&#34;
-version = &#39;0.0.2&#39;
-print (&#39;AerVis &#39;+version)
 
-#d = AerData(&#39;bk417a&#39;)</code></pre>
+# import UKCA_lib as ukl
+# reload(ukl)
+# import matplotlib.pyplot as plt
+# import iris
+
+I_MODE_SETUP=8#is this the number for this setup? I set it to 8 as example
+#we can add later on the I_MODE_SETUP to be read as an argument when you run the script
+
+if I_MODE_SETUP==8:
+    # Modal based paramters that are dependent on the I_MODE_SETUP of the model
+
+    mode_names=[&#34;nucsol&#34;,&#34;aitsol&#34;,&#34;accsol&#34;,&#34;corsol&#34;,&#34;aitins&#34;,&#34;accins&#34;,&#34;corins&#34;]
+
+    # Mode switches (1=on, 0=0ff)
+    mode_choice=[1,1,1,1,1,1,1]
+
+    # Specify which modes are soluble
+    # Mode names
+    modesol=[1,1,1,1,0,0,0]
+
+    # Mode width
+    sigma=[1.59,1.59,1.40,2.0,1.59,1.59,2.0]
+
+    # Specify size limits of geometric mean diameter for each mode (ddp - dry diameter of particle, m)
+    # Lower Limit of Mode: ddplim0
+    ddplim0=[1.0e-9,1.0e-8,1.0e-7,0.5e-6,1.0e-8,1.0e-7,1.0e-6]
+    # Upper Limit of Mode: ddplim1
+    ddplim1=[1.0e-8,1.0e-7,0.5e-6,1.0e-5,1.0e-7,1.0e-6,1.0e-5]
+
+
+    # Species (Component) based paramters that are dependent on the I_MODE_SETUP of the model
+
+    # Component names
+    component_names= [&#34;so4&#34;,&#34;bc&#34;,&#34;oc&#34;,&#34;ss&#34;,&#34;dust&#34;]#,&#34;sec_org&#34;]#do we have secondary organics??
+    kappa_component=[   0.61,    0.00,    0.10,    1.28,    0.00]#, 0.1]#check seconday organics I setted it to the same as organics but need to check. Jesus
+    # Molar Mass kg / mol
+    mm= [0.098,0.012,0.0168,0.05844,0.100]#,0.0168]
+
+    # Density
+    rhocomp=[1769.0,1500.0,1500.0,1600.0,2650.0]#,1500.0]#kg/m3
+    
+    
+    
+    
+    
+
+    
+&#39;&#39;&#39;
+ukca library
+
+use this instead rhocomp[ims.component_names.index(comp_name)]
+
+
+class SpeciesAttributes:
+    def __init__(self,name,mm,rhocomp,kappa,description=&#39;None&#39;):
+        self.name=name
+        self.mm=mm
+        self.rhocomp=rhocomp
+        self.kappa=kappa
+        self.description=description
+
+
+class ModalAttributes:
+    def __init__(self,name,sigma,ddplim0,ddplim1,modesol,mode_choice,description=&#39;None&#39;):
+        self.name=name
+        self.sigma=sigma
+        self.ddplim0=ddplim0
+        self.ddplim1=ddplim1
+        self.modesol=modesol
+        self.mode_choice=mode_choice
+        self.description=description
+        
+        
+&#39;&#39;&#39;</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -81,10 +126,9 @@ print (&#39;AerVis &#39;+version)
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></li>
-<li><code><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></li>
+<li><code><a title="aervis.conversion.L1" href="index.html">aervis.conversion.L1</a></code></li>
 </ul>
 </li>
 </ul>

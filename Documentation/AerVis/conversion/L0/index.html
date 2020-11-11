@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>aervis.conversion.L0 API documentation</title>
+<meta name="description" content="The First Level of the AerVis code …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>aervis.conversion.L0</code></h1>
+</header>
+<section id="section-intro">
+<p>The First Level of the AerVis code.</p>
+<p>This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).</p>
+<p>UKCA format is generally in the form of <code>&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp</code>.</p>
+<p>To run the module use <code>python -m AerVis.L0 &lt;args&gt;</code></p>
+<p>To run interactively:
+<code></p>
+<pre><code> import airvis
+
+ # update variables (e.g. rotate_cube)
+ airvis.L0.rotate_cube = True
+ airvis.L0.lat=10
+ airvis.L0.lon=29
+
+ # run
+ airvis.L0.run('UKCArun','./runs/')
+</code></pre>
+<p></code></p>
+<p>Notes:
+Speed is lost on IO, we want to minimise the amount of file reading and writing. LO functions have been concatenated.</p>
+<p>Iris does not hold read files in memory, and can read from several at the same time using the netCDF or pp binary formats.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39;
+The First Level of the AerVis code.
+
+This in essence perfoms a level of concatenation of the pp output of a model run, and parses them for plotting (as well as converts them into the netCDF file format).
+
+UKCA format is generally in the form of `&lt;filename&gt;.pn&lt;daily|monthly|yearly avarages&gt;.pp`.
+
+To run the module use `python -m AerVis.L0 &lt;args&gt;`
+
+ To run interactively:
+&lt;code&gt;
+
+     import airvis
+
+     # update variables (e.g. rotate_cube)
+     airvis.L0.rotate_cube = True
+     airvis.L0.lat=10
+     airvis.L0.lon=29
+
+     # run
+     airvis.L0.run(&#39;UKCArun&#39;,&#39;./runs/&#39;)
+ &lt;/code&gt;
+
+Notes:
+Speed is lost on IO, we want to minimise the amount of file reading and writing. LO functions have been concatenated.
+
+Iris does not hold read files in memory, and can read from several at the same time using the netCDF or pp binary formats.
+
+
+&#39;&#39;&#39;
+
+
+
+#glob imports
+import sys,time,iris,datetime,getpass,os,xarray,dill
+import numpy as np
+from glob import glob
+from functools import partial
+import multiprocessing as mp
+
+#lib imports
+from .ppread import *
+from ..variable_dict import *
+from .process_cube import *
+from ..util import chunk
+from ..global_config import __FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__
+
+__all__ = &#39;__OUTPUT_DIR__ __OROGRAPY__ rotate_lat rotate_lon run&#39;.split()
+
+
+__OROGRAPY__ = os.getenv(&#39;OROGRAPHY&#39;,os.getcwd()+&#39;/n96_hadgem1_qrparm.orog_new.pp&#39;)
+__OUTPUT_DIR__ = os.getenv(&#39;OUTPUTS&#39;,os.getcwd()+&#39;/outputs&#39;)
+#print(sys.argv,os.getcwd(),&#39;dsf&#39;,__file__)
+#os.getcwd()+
+try:os.mkdir(__OUTPUT_DIR__)
+except PermissionError: sys.exit(&#39;You do not have permissions to write in: &#39;+ __OUPUT_DIR__+&#39;. Exectured from: &#39;+ os.cwd())
+except OSError:None
+
+rotate_lat,rotate_lon = [0.0,0.0]
+&#39;&#39;&#39; rotate the variable coordinates by the values of lat and lon within the L0 module&#39;&#39;&#39;
+
+
+
+def getVR(stashname):
+    &#39;&#39;&#39; If existing, reads the stashobject, otherwise creates and saves it&#39;&#39;&#39;
+    try:#does a pickle already exist
+        var_ref = dill.load(open(stashname+&#39;.dl&#39;,&#39;rb&#39;))  
+    except FileNotFoundError:
+        var_ref = makeVR(stashname)
+        var_ref.save(stashname+&#39;.dl&#39;)
+    return var_ref
+
+
+
+def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__ , stashname = &#39;&#39;):
+    &#39;&#39;&#39;
+    Default L0 run script for manual initiation, or being run as a module.
+
+    Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
+
+    &#39;&#39;&#39;
+
+
+    # from .ppread import read_all,get_names
+
+    __origin__ = name
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
+    # __FILES__ = __FILES__[:2]
+    __FILES__.insert(0,__OROGRAPY__)
+    
+    if len(__FILES__)&lt;2 :
+        import sys 
+        sys.exit(&#39;Not enough files found - check parameter. &#39;)
+    
+    
+    print([stash_master,stash_mapping,stash_umi])
+    
+    if not stashname: 
+        # generate the stashname from provided files
+        # stashname = []
+        # for i,j in enumerate([__FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__]):
+        #     head,tail = os.path.split(j)
+        #     if i==0:stashname = [head,tail]
+        #     else:stashname.append(tail)
+        #     print (head,tail)
+        stashname = &#39;¬&#39;.join([stash_master,stash_mapping,stash_umi]).replace(&#39;/&#39;,&#39;~&#39;)
+        print(stashname)
+        var_ref= getVR(stashname)    
+        
+        
+    
+    
+
+
+
+    print (&#39;---- Reading data for %s ----&#39;%name)
+    start = time.perf_counter()
+    cubes=iris.load(__FILES__)
+    end = time.perf_counter() - start
+    print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
+
+    
+
+
+    kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
+    
+    
+    # 
+    # 
+    # pool = mp.Pool(ncpu)    
+    # 
+    # cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes,ncpu)) ) 
+    # 
+    # while not cube_list.ready():
+    # 
+    #     import sys
+    # 
+    #     chars = &#34;.:&#39;:.&#34;
+    # 
+    #     for c in chars:
+    #         sys.stdout.write(c)
+    #         sys.stdout.write(&#39;\b&#39;)
+    #         sys.stdout.flush()  
+    #         time.sleep(1)
+    # 
+    #     time.sleep(3)
+    # 
+    # cube_list = np.array(cube_list.get())
+    
+    # data = xarray.combine_by_coords(cube_list[:,0])
+    
+    ## GET DATASET - multiprocessing crashes read of file
+    
+    
+    
+    
+    data = cube2xarr(cubes, **kwargs)
+    
+    # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
+    data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    total = time.perf_counter() - start
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;L0_delta&#39;] = total
+    data.attrs[&#39;stashname&#39;]= stashname
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
+    
+        
+    # group 
+    
+    return data
+    </code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="aervis.conversion.L0.ppread" href="ppread.html">aervis.conversion.L0.ppread</a></code></dt>
+<dd>
+<div class="desc"><p>Tools to read a number of pp files.</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.L0.process_cube" href="process_cube.html">aervis.conversion.L0.process_cube</a></code></dt>
+<dd>
+<div class="desc"><p>A function to convert a cube into an xarray object and save it in a single dataset</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="aervis.conversion.L0.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>name: str, loc: str = './', ncpu: int = 4, stash_master='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/conversion/variable_dict/STASHmaster_A', stash_mapping='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/conversion/variable_dict/ukca_stdname_vn92_v2', stash_umi='/Users/wolfiex/UKCA_postproc/data/AerVis/aervis/conversion/variable_dict/teafy.A.diags_short', stashname='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Default L0 run script for manual initiation, or being run as a module.</p>
+<p>Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(name:str,loc:str=&#39;./&#39;,ncpu:int=4,__FILES__= False, stash_master=__FILE_STASHmaster__, stash_mapping=__FILE_mapping__, stash_umi=__FILE_STASH_From_UMUI__ , stashname = &#39;&#39;):
+    &#39;&#39;&#39;
+    Default L0 run script for manual initiation, or being run as a module.
+
+    Concatenates all files into an xarray Dataset rather than an iris cube list (the end result is the same exept this is cleaner.)
+
+    &#39;&#39;&#39;
+
+
+    # from .ppread import read_all,get_names
+
+    __origin__ = name
+    if not __FILES__:__FILES__ = get_names(name,path=loc)
+    # __FILES__ = __FILES__[:2]
+    __FILES__.insert(0,__OROGRAPY__)
+    
+    if len(__FILES__)&lt;2 :
+        import sys 
+        sys.exit(&#39;Not enough files found - check parameter. &#39;)
+    
+    
+    print([stash_master,stash_mapping,stash_umi])
+    
+    if not stashname: 
+        # generate the stashname from provided files
+        # stashname = []
+        # for i,j in enumerate([__FILE_STASHmaster__,__FILE_mapping__,__FILE_STASH_From_UMUI__]):
+        #     head,tail = os.path.split(j)
+        #     if i==0:stashname = [head,tail]
+        #     else:stashname.append(tail)
+        #     print (head,tail)
+        stashname = &#39;¬&#39;.join([stash_master,stash_mapping,stash_umi]).replace(&#39;/&#39;,&#39;~&#39;)
+        print(stashname)
+        var_ref= getVR(stashname)    
+        
+        
+    
+    
+
+
+
+    print (&#39;---- Reading data for %s ----&#39;%name)
+    start = time.perf_counter()
+    cubes=iris.load(__FILES__)
+    end = time.perf_counter() - start
+    print (&#39; %.2f minutes: %d files %d cubes&#39;%(end/60,len(__FILES__),len(cubes)))
+
+    
+
+
+    kwargs = {&#39;var_ref&#39;:var_ref,&#39;rotate_lat&#39;:rotate_lat, &#39;rotate_lon&#39;:rotate_lon}
+    
+    
+    # 
+    # 
+    # pool = mp.Pool(ncpu)    
+    # 
+    # cube_list = pool.map_async( partial(cube2xarr,**kwargs), list(chunk(cubes,ncpu)) ) 
+    # 
+    # while not cube_list.ready():
+    # 
+    #     import sys
+    # 
+    #     chars = &#34;.:&#39;:.&#34;
+    # 
+    #     for c in chars:
+    #         sys.stdout.write(c)
+    #         sys.stdout.write(&#39;\b&#39;)
+    #         sys.stdout.flush()  
+    #         time.sleep(1)
+    # 
+    #     time.sleep(3)
+    # 
+    # cube_list = np.array(cube_list.get())
+    
+    # data = xarray.combine_by_coords(cube_list[:,0])
+    
+    ## GET DATASET - multiprocessing crashes read of file
+    
+    
+    
+    
+    data = cube2xarr(cubes, **kwargs)
+    
+    # data.attrs[&#39;avg_cube_delta&#39;]= cube_list[:,2].mean()
+    data.attrs[&#39;files&#39;] = __FILES__#&#39;,&#39;.join(__FILES__)
+    total = time.perf_counter() - start
+    data.attrs[&#39;iris_cube_delta&#39;] = end
+    data.attrs[&#39;L0_delta&#39;] = total
+    data.attrs[&#39;stashname&#39;]= stashname
+    print (&#39; ------- &#39;,data.attrs[&#39;files&#39;],data.attrs[&#39;avg_cube_delta&#39;],total/60)
+    
+        
+    # group 
+    
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="aervis.conversion" href="../index.html">aervis.conversion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="aervis.conversion.L0.ppread" href="ppread.html">aervis.conversion.L0.ppread</a></code></li>
+<li><code><a title="aervis.conversion.L0.process_cube" href="process_cube.html">aervis.conversion.L0.process_cube</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="aervis.conversion.L0.run" href="#aervis.conversion.L0.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

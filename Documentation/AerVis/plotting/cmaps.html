@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>aervis API documentation</title>
-<meta name="description" content="Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis …" />
+<title>aervis.plotting.cmaps API documentation</title>
+<meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,56 +17,17 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>aervis</code></h1>
+<h1 class="title">Module <code>aervis.plotting.cmaps</code></h1>
 </header>
 <section id="section-intro">
-<p>Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.</p>
-<p>Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
-University of Leeds 2016-2020+</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis.
-
-
-Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle
-
-
-D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | &lt;a href=&#39;https://www.cemac.leeds.ac.uk&#39;&gt; CEMAC &lt;/a&gt;|
-University of Leeds 2016-2020+
-
-
-&#34;&#34;&#34;
-version = &#39;0.0.2&#39;
-print (&#39;AerVis &#39;+version)
-
-#d = AerData(&#39;bk417a&#39;)</code></pre>
+<pre><code class="python">colours = &#39;&#39;&#39;Accent, Accent_r, Blues, Blues_r, BrBG, BrBG_r, BuGn, BuGn_r, BuPu, BuPu_r, CMRmap, CMRmap_r, Dark2, Dark2_r, GnBu, GnBu_r, Greens, Greens_r, Greys, Greys_r, OrRd, OrRd_r, Oranges, Oranges_r, PRGn, PRGn_r, Paired, Paired_r, Pastel1, Pastel1_r, Pastel2, Pastel2_r, PiYG, PiYG_r, PuBu, PuBuGn, PuBuGn_r, PuBu_r, PuOr, PuOr_r, PuRd, PuRd_r, Purples, Purples_r, RdBu, RdBu_r, RdGy, RdGy_r, RdPu, RdPu_r, RdYlBu, RdYlBu_r, RdYlGn, RdYlGn_r, Reds, Reds_r, Set1, Set1_r, Set2, Set2_r, Set3, Set3_r, Spectral, Spectral_r, Wistia, Wistia_r, YlGn, YlGnBu, YlGnBu_r, YlGn_r, YlOrBr, YlOrBr_r, YlOrRd, YlOrRd_r, afmhot, afmhot_r, autumn, autumn_r, binary, binary_r, bone, bone_r, brg, brg_r, bwr, bwr_r, cividis, cividis_r, cool, cool_r, coolwarm, coolwarm_r, copper, copper_r, cubehelix, cubehelix_r, flag, flag_r, gist_earth, gist_earth_r, gist_gray, gist_gray_r, gist_heat, gist_heat_r, gist_ncar, gist_ncar_r, gist_rainbow, gist_rainbow_r, gist_stern, gist_stern_r, gist_yarg, gist_yarg_r, gnuplot, gnuplot2, gnuplot2_r, gnuplot_r, gray, gray_r, hot, hot_r, hsv, hsv_r, inferno, inferno_r, jet, jet_r, magma, magma_r, nipy_spectral, nipy_spectral_r, ocean, ocean_r, pink, pink_r, plasma, plasma_r, prism, prism_r, rainbow, rainbow_r, seismic, seismic_r, spring, spring_r, summer, summer_r, tab10, tab10_r, tab20, tab20_r, tab20b, tab20b_r, tab20c, tab20c_r, terrain, terrain_r, twilight, twilight_r, twilight_shifted, twilight_shifted_r, viridis, viridis_r, winter, winter_r&#39;&#39;&#39;.replace(&#39; &#39;,&#39;&#39;).split(&#39;,&#39;)</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -81,10 +42,9 @@ print (&#39;AerVis &#39;+version)
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></li>
-<li><code><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></li>
+<li><code><a title="aervis.plotting" href="index.html">aervis.plotting</a></code></li>
 </ul>
 </li>
 </ul>

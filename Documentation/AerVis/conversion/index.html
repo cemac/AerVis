@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>aervis API documentation</title>
-<meta name="description" content="Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis …" />
+<title>aervis.conversion API documentation</title>
+<meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,54 +17,39 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>aervis</code></h1>
+<h1 class="title">Namespace <code>aervis.conversion</code></h1>
 </header>
 <section id="section-intro">
-<p>Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.</p>
-<p>Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
-University of Leeds 2016-2020+</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;
-Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis.
-
-
-Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle
-
-
-D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | &lt;a href=&#39;https://www.cemac.leeds.ac.uk&#39;&gt; CEMAC &lt;/a&gt;|
-University of Leeds 2016-2020+
-
-
-&#34;&#34;&#34;
-version = &#39;0.0.2&#39;
-print (&#39;AerVis &#39;+version)
-
-#d = AerData(&#39;bk417a&#39;)</code></pre>
-</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></dt>
+<dt><code class="name"><a title="aervis.conversion.L0" href="L0/index.html">aervis.conversion.L0</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The First Level of the AerVis code …</p></div>
 </dd>
-<dt><code class="name"><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></dt>
+<dt><code class="name"><a title="aervis.conversion.L1" href="L1/index.html">aervis.conversion.L1</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The L1 section of the AerVis code …</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.datasetclass" href="datasetclass.html">aervis.conversion.datasetclass</a></code></dt>
+<dd>
+<div class="desc"><p>The AerVis dataset class
+This contains functions regarding all Levels of the library code.</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.global_config" href="global_config.html">aervis.conversion.global_config</a></code></dt>
+<dd>
+<div class="desc"><p>Global dictionary for AerVis
+This contains the default locations of files required by the code.
+These may be overwritten using a config file.</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.util" href="util.html">aervis.conversion.util</a></code></dt>
+<dd>
+<div class="desc"><p>A collection of functions useful for computation</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.variable_dict" href="variable_dict/index.html">aervis.conversion.variable_dict</a></code></dt>
+<dd>
+<div class="desc"><p>Variable Dictionary files</p></div>
 </dd>
 </dl>
 </section>
@@ -81,10 +66,19 @@ print (&#39;AerVis &#39;+version)
 <ul></ul>
 </div>
 <ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="aervis" href="../index.html">aervis</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></li>
-<li><code><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></li>
+<li><code><a title="aervis.conversion.L0" href="L0/index.html">aervis.conversion.L0</a></code></li>
+<li><code><a title="aervis.conversion.L1" href="L1/index.html">aervis.conversion.L1</a></code></li>
+<li><code><a title="aervis.conversion.datasetclass" href="datasetclass.html">aervis.conversion.datasetclass</a></code></li>
+<li><code><a title="aervis.conversion.global_config" href="global_config.html">aervis.conversion.global_config</a></code></li>
+<li><code><a title="aervis.conversion.util" href="util.html">aervis.conversion.util</a></code></li>
+<li><code><a title="aervis.conversion.variable_dict" href="variable_dict/index.html">aervis.conversion.variable_dict</a></code></li>
 </ul>
 </li>
 </ul>

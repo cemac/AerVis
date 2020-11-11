@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>aervis.conversion.L1 API documentation</title>
+<meta name="description" content="The L1 section of the AerVis code …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>aervis.conversion.L1</code></h1>
+</header>
+<section id="section-intro">
+<p>The L1 section of the AerVis code</p>
+<p>This section gathers information about the simulation runs</p>
+<p>args:
+overwrite - ignores the fact L1 has already been run</p>
+<p>testing:</p>
+<p>import xarray,scipy
+import numpy as np
+from aervis.L1 import I_MODE_SETUP_var as ims
+from aervis.L1 import coords</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39;
+The L1 section of the AerVis code
+
+This section gathers information about the simulation runs
+
+
+args: 
+    overwrite - ignores the fact L1 has already been run
+
+
+testing:
+
+import xarray,scipy
+import numpy as np
+from aervis.L1 import I_MODE_SETUP_var as ims 
+from aervis.L1 import coords
+
+&#39;&#39;&#39;
+
+import xarray,scipy,time
+import numpy as np
+
+def run(self,imode:str = False,overwrite:bool=False ):
+    &#39;&#39;&#39;
+    The generic L1 function (for all files). 
+    
+    imode - full path including.py executable to I_MODE_SETUP_config
+    &#39;&#39;&#39;
+    
+    start = time.perf_counter()
+    
+    if &#39;L1_variables&#39; in self.data.attrs.keys() and not overwrite:
+        print (&#39;L1 has already been computed on this datset, skipping&#39;)
+        return None
+        
+    
+    
+    from . import coords
+    
+    if imode: #import from filepath provided
+        import importlib.util as ut 
+        spec = ut.spec_from_file_location(&#34;module.name&#34;, imode)
+        ims = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ims)
+    else:    
+        from . import I_MODE_SETUP_var as ims 
+
+
+    self.vd() # generate variable dictionary  as this will be needed. 
+    dataset = xarray.Dataset() # empty dataset
+    dataset = coords.add(dataset) # add required constants to coordinates
+    
+#######################################################################    
+
+    &#39;&#39;&#39; Temperature &#39;&#39;&#39;
+    if self.model == &#39;tomcat&#39;: 
+        pT = self.data[&#39;m01s00i004&#39;] #??potential_temperature
+        tshape = pT.shape
+    else:
+        dataset[&#39;temperature&#39;] = self.data[&#39;m01s16i004&#39;] #[0]??
+        tshape = dataset[&#39;temperature&#39;].shape
+        
+        
+#######################################################################    
+    
+    &#39;&#39;&#39; AIR Pressure &#39;&#39;&#39;
+    try:
+        dataset[&#39;air_pressure&#39;] = self.data[&#39;m01s00i408&#39;]
+    
+        if dataset[&#39;air_pressure&#39;].shape != tshape:
+                raise NameError(&#39;air pressure with different shape as potential_temperature &#39;,dataset[&#39;air_pressure&#39;].shape,tshape)
+    
+    
+    except NameError or KeyError:
+    #     # convert to Pa -&gt; * 100000
+         dataset[&#39;air_pressure&#39;] = self.data[&#39;m01s00i255&#39;][0]*100000.0 # 
+
+#######################################################################    
+# 
+    if self.model == &#39;tomcat&#39;:dataset[&#39;temperature&#39;] = pT*(dataset[&#39;air_pressure&#39;]/100000.0)**(287.05/1005.46)
+        # p0 = 100000 # 1 hPa = 100 Pa 
+        # Rd = 287.05 # J/kg/K
+        # cp = 1005.46 # J/kg/K
+
+#######################################################################            
+
+
+    &#39;&#39;&#39; Air Density &#39;&#39;&#39;
+
+    dataset[&#39;air_density&#39;] = (dataset[&#39;air_pressure&#39;]/(dataset[&#39;temperature&#39;]*dataset.coords[&#39;r_specific&#39;]))
+
+    dataset[&#39;particle_density_air&#39;] = dataset[&#39;air_density&#39;]/dataset.coords[&#39;molar_mass_air&#39;]*dataset.coords[&#39;avogadro&#39;]
+
+
+
+#######################################################################    
+
+
+    &#39;&#39;&#39;Additional info&#39;&#39;&#39;
+
+
+    # mass mixing ratios - particles concentration
+    for entry in self.vr.match(&#39;nbr&#39;):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]
+            name = &#39;n&#39;+stash[3:]
+
+            dataset[name] = self.data[stash]*dataset[&#39;particle_density_air&#39;]
+            dataset[name].attrs[&#39;long_name&#39;] = &#39;number_concentration&#39;+ item[&#39;long_name&#39;][15:]
+            dataset[name].attrs[&#39;var_name&#39;] = name
+
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+
+
+    # mass mixing ratios - mass concentration    
+    # Calculate mass concentrations from air density and mass mixing ratios
+    mc_keys = []    
+    for entry in self.vr.match([&#39;mmr&#39;,&#39;sol&#39;]) + self.vr.match([&#39;mmr&#39;,&#39;ins&#39;]):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]  
+            name = &#39;mcon_&#39;+stash[3:]  
+
+            dataset[name] = self.data[stash]*dataset[&#39;air_density&#39;]
+            dataset[name].attrs[&#39;long_name&#39;] = &#39;mass_concentration&#39;+ item[&#39;long_name&#39;][13:-7]
+            dataset[name].attrs[&#39;var_name&#39;] = name    
+
+            mc_keys.append(name)
+
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+
+
+
+
+
+
+
+
+#######################################################################     
+
+    &#39;&#39;&#39;Imode functions&#39;&#39;&#39;
+    from . import IMFN
+    dataset = IMFN.getIMFN(dataset,ims,mc_keys)
+
+#######################################################################    
+
+    &#39;&#39;&#39; Particulate matter calculations &#39;&#39;&#39;
+    from . import PM
+    datset = PM.getPM(dataset,ims)
+
+
+#######################################################################   
+
+    &#39;&#39;&#39; Critical Diameter &#39;&#39;&#39;                
+
+    from . import CCN
+    datset = CCN.getCCN(datset,ims)
+    
+    
+        
+#######################################################################           
+    &#39;&#39;&#39;
+    Update parameters from L1 and write to file
+    L1 var = list 
+    L1 coord = list
+    L1 attr = List 
+    &#39;&#39;&#39;
+    
+    dataset.attrs[&#39;L1_variables&#39;] = &#39; &#39;.join(dataset.keys())
+    dataset.attrs[&#39;L1_attrs&#39;] = &#39; &#39;.join(dataset.attrs.keys())
+    dataset.attrs[&#39;L1_coords&#39;] = &#39; &#39;.join(dataset.coords.keys())
+    dataset.attrs[&#39;L1_delta_nowrite&#39;] = time.perf_counter() - start
+    
+    
+    
+    self.data.close()
+    
+    ## append to netCDF
+    try: dataset.to_netcdf(self.nc_loc,mode=&#39;a&#39;,format=&#39;NETCDF4&#39;,compute=True)
+    
+    except OSError as e:
+        self.killreading()
+        dataset.to_netcdf(self.nc_loc,mode=&#39;a&#39;,format=&#39;NETCDF4&#39;,compute=True)
+        
+    
+    print(&#39;--- L1 finished ---&#39;,(time.perf_counter() - start)/60)
+    return True #dataset # must return true if sucessful
+    
+    #python -c &#34;import aervis; d = aervis.AerData(&#39;ACURE_PPE_001_bs714a&#39;);d.getL1(overwrite=True) &#34;</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="aervis.conversion.L1.CCN" href="CCN.html">aervis.conversion.L1.CCN</a></code></dt>
+<dd>
+<div class="desc"><p>Critical diameter calculations submodule</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.L1.IMFN" href="IMFN.html">aervis.conversion.L1.IMFN</a></code></dt>
+<dd>
+<div class="desc"><p>Submodule for the Imode based functions</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.L1.I_MODE_SETUP_var" href="I_MODE_SETUP_var.html">aervis.conversion.L1.I_MODE_SETUP_var</a></code></dt>
+<dd>
+<div class="desc"><p>Routine to store model variables not given in the ouput files …</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.L1.PM" href="PM.html">aervis.conversion.L1.PM</a></code></dt>
+<dd>
+<div class="desc"><p>Particular Matter calculations submodule</p></div>
+</dd>
+<dt><code class="name"><a title="aervis.conversion.L1.coords" href="coords.html">aervis.conversion.L1.coords</a></code></dt>
+<dd>
+<div class="desc"><p>A file containing all the coordinates which need to be added to a DataSet …</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="aervis.conversion.L1.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, imode: str = False, overwrite: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The generic L1 function (for all files). </p>
+<p>imode - full path including.py executable to I_MODE_SETUP_config</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self,imode:str = False,overwrite:bool=False ):
+    &#39;&#39;&#39;
+    The generic L1 function (for all files). 
+    
+    imode - full path including.py executable to I_MODE_SETUP_config
+    &#39;&#39;&#39;
+    
+    start = time.perf_counter()
+    
+    if &#39;L1_variables&#39; in self.data.attrs.keys() and not overwrite:
+        print (&#39;L1 has already been computed on this datset, skipping&#39;)
+        return None
+        
+    
+    
+    from . import coords
+    
+    if imode: #import from filepath provided
+        import importlib.util as ut 
+        spec = ut.spec_from_file_location(&#34;module.name&#34;, imode)
+        ims = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ims)
+    else:    
+        from . import I_MODE_SETUP_var as ims 
+
+
+    self.vd() # generate variable dictionary  as this will be needed. 
+    dataset = xarray.Dataset() # empty dataset
+    dataset = coords.add(dataset) # add required constants to coordinates
+    
+#######################################################################    
+
+    &#39;&#39;&#39; Temperature &#39;&#39;&#39;
+    if self.model == &#39;tomcat&#39;: 
+        pT = self.data[&#39;m01s00i004&#39;] #??potential_temperature
+        tshape = pT.shape
+    else:
+        dataset[&#39;temperature&#39;] = self.data[&#39;m01s16i004&#39;] #[0]??
+        tshape = dataset[&#39;temperature&#39;].shape
+        
+        
+#######################################################################    
+    
+    &#39;&#39;&#39; AIR Pressure &#39;&#39;&#39;
+    try:
+        dataset[&#39;air_pressure&#39;] = self.data[&#39;m01s00i408&#39;]
+    
+        if dataset[&#39;air_pressure&#39;].shape != tshape:
+                raise NameError(&#39;air pressure with different shape as potential_temperature &#39;,dataset[&#39;air_pressure&#39;].shape,tshape)
+    
+    
+    except NameError or KeyError:
+    #     # convert to Pa -&gt; * 100000
+         dataset[&#39;air_pressure&#39;] = self.data[&#39;m01s00i255&#39;][0]*100000.0 # 
+
+#######################################################################    
+# 
+    if self.model == &#39;tomcat&#39;:dataset[&#39;temperature&#39;] = pT*(dataset[&#39;air_pressure&#39;]/100000.0)**(287.05/1005.46)
+        # p0 = 100000 # 1 hPa = 100 Pa 
+        # Rd = 287.05 # J/kg/K
+        # cp = 1005.46 # J/kg/K
+
+#######################################################################            
+
+
+    &#39;&#39;&#39; Air Density &#39;&#39;&#39;
+
+    dataset[&#39;air_density&#39;] = (dataset[&#39;air_pressure&#39;]/(dataset[&#39;temperature&#39;]*dataset.coords[&#39;r_specific&#39;]))
+
+    dataset[&#39;particle_density_air&#39;] = dataset[&#39;air_density&#39;]/dataset.coords[&#39;molar_mass_air&#39;]*dataset.coords[&#39;avogadro&#39;]
+
+
+
+#######################################################################    
+
+
+    &#39;&#39;&#39;Additional info&#39;&#39;&#39;
+
+
+    # mass mixing ratios - particles concentration
+    for entry in self.vr.match(&#39;nbr&#39;):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]
+            name = &#39;n&#39;+stash[3:]
+
+            dataset[name] = self.data[stash]*dataset[&#39;particle_density_air&#39;]
+            dataset[name].attrs[&#39;long_name&#39;] = &#39;number_concentration&#39;+ item[&#39;long_name&#39;][15:]
+            dataset[name].attrs[&#39;var_name&#39;] = name
+
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+
+
+    # mass mixing ratios - mass concentration    
+    # Calculate mass concentrations from air density and mass mixing ratios
+    mc_keys = []    
+    for entry in self.vr.match([&#39;mmr&#39;,&#39;sol&#39;]) + self.vr.match([&#39;mmr&#39;,&#39;ins&#39;]):
+        try:
+            item = self.vr.get(entry)
+            stash = item[&#39;stash_code&#39;]  
+            name = &#39;mcon_&#39;+stash[3:]  
+
+            dataset[name] = self.data[stash]*dataset[&#39;air_density&#39;]
+            dataset[name].attrs[&#39;long_name&#39;] = &#39;mass_concentration&#39;+ item[&#39;long_name&#39;][13:-7]
+            dataset[name].attrs[&#39;var_name&#39;] = name    
+
+            mc_keys.append(name)
+
+        except KeyError :
+            print(entry, &#39; not found!&#39; )
+
+
+
+
+
+
+
+
+#######################################################################     
+
+    &#39;&#39;&#39;Imode functions&#39;&#39;&#39;
+    from . import IMFN
+    dataset = IMFN.getIMFN(dataset,ims,mc_keys)
+
+#######################################################################    
+
+    &#39;&#39;&#39; Particulate matter calculations &#39;&#39;&#39;
+    from . import PM
+    datset = PM.getPM(dataset,ims)
+
+
+#######################################################################   
+
+    &#39;&#39;&#39; Critical Diameter &#39;&#39;&#39;                
+
+    from . import CCN
+    datset = CCN.getCCN(datset,ims)
+    
+    
+        
+#######################################################################           
+    &#39;&#39;&#39;
+    Update parameters from L1 and write to file
+    L1 var = list 
+    L1 coord = list
+    L1 attr = List 
+    &#39;&#39;&#39;
+    
+    dataset.attrs[&#39;L1_variables&#39;] = &#39; &#39;.join(dataset.keys())
+    dataset.attrs[&#39;L1_attrs&#39;] = &#39; &#39;.join(dataset.attrs.keys())
+    dataset.attrs[&#39;L1_coords&#39;] = &#39; &#39;.join(dataset.coords.keys())
+    dataset.attrs[&#39;L1_delta_nowrite&#39;] = time.perf_counter() - start
+    
+    
+    
+    self.data.close()
+    
+    ## append to netCDF
+    try: dataset.to_netcdf(self.nc_loc,mode=&#39;a&#39;,format=&#39;NETCDF4&#39;,compute=True)
+    
+    except OSError as e:
+        self.killreading()
+        dataset.to_netcdf(self.nc_loc,mode=&#39;a&#39;,format=&#39;NETCDF4&#39;,compute=True)
+        
+    
+    print(&#39;--- L1 finished ---&#39;,(time.perf_counter() - start)/60)
+    return True #dataset # must return true if sucessful</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="aervis.conversion" href="../index.html">aervis.conversion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="aervis.conversion.L1.CCN" href="CCN.html">aervis.conversion.L1.CCN</a></code></li>
+<li><code><a title="aervis.conversion.L1.IMFN" href="IMFN.html">aervis.conversion.L1.IMFN</a></code></li>
+<li><code><a title="aervis.conversion.L1.I_MODE_SETUP_var" href="I_MODE_SETUP_var.html">aervis.conversion.L1.I_MODE_SETUP_var</a></code></li>
+<li><code><a title="aervis.conversion.L1.PM" href="PM.html">aervis.conversion.L1.PM</a></code></li>
+<li><code><a title="aervis.conversion.L1.coords" href="coords.html">aervis.conversion.L1.coords</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="aervis.conversion.L1.run" href="#aervis.conversion.L1.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

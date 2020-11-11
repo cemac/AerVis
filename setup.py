@@ -1,3 +1,8 @@
+import sys
+print(sys.version)
+if int(sys.version.split('.')[0]) < 3 :
+    sys.exit('please use python 3') 
+
 try:
     from setuptools import setup
 except:
@@ -9,7 +14,7 @@ with open("README.md", "r") as fh:
 '''
 conda install -c conda-forge nco
 '''    
-req = 'dill datetime dask>=2.17.2 xarray scipy nco'.split()
+req = 'dill datetime dask>=2.17.2 xarray scipy'.split()
 req.append('iris @ https://github.com/SciTools/iris/archive/v2.4.0.tar.gz')
 print('requirements: ',req)
 
