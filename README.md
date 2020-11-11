@@ -1,5 +1,8 @@
 # AerVis
 UKCA_postproc python library
+Adapted from the postproc library (insert link here)
+Written by CEMAC Leeds. 
+
 
 ## Documentation
 <a href='https://wolfiex.github.io/AerVis/Documentation/AerVis/'> Click Here for Documentation</a>
