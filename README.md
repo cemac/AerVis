@@ -6,7 +6,7 @@ UKCA_postproc python library
 
 <a href='https://github.com/wolfiex/AerVis/wiki'> Here for the WIKI</a>
 
-<a href='https://github.com/wolfiex/AerVis/Examples'> Ipython Notebooks in Examples folder Above</a>
+<a href='https://github.com/wolfiex/AerVis/tree/master/examples'> Ipython Notebooks in Examples folder Above</a>
 
 
 ## Install 
