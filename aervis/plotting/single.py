@@ -8,8 +8,7 @@ A series of plotting functions for a single file
 #imports
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import colorbar,colors,rcParams
-rcParams['mpl_toolkits.legacy_colorbar'] = False
+from matplotlib import colorbar,colors
 from datetime import datetime
 import cartopy.crs as ccrs
 from cartopy.mpl.geoaxes import GeoAxes
@@ -117,7 +116,7 @@ def singleplot(dataset,what:str,t_steps=False,projection = ccrs.PlateCarree(),cm
                     cbar_location='right',
                     cbar_mode='single',
                     cbar_pad=0.2,
-                    cbar_size='3%',
+                    cbar_size=str(int(np.ceil(3/rows)))+'%',
                     label_mode='')  # note the empty label_mode
 
     

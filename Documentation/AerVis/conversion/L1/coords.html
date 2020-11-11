@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>aervis API documentation</title>
-<meta name="description" content="Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis …" />
+<title>aervis.conversion.L1.coords API documentation</title>
+<meta name="description" content="A file containing all the coordinates which need to be added to a DataSet …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,60 +17,76 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>aervis</code></h1>
+<h1 class="title">Module <code>aervis.conversion.L1.coords</code></h1>
 </header>
 <section id="section-intro">
-<p>Improvements and creation of <a href='https://github.com/wolfiex/AerVis'>this library</a> by Daniel Ellis.</p>
-<p>Original <a href='https://github.com/KirstyPringle/UKCA_postproc'>code and concept</a> developed by Jesus Vergara Temprado and Kirsty Pringle</p>
-<p>D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk</p>
-<p>Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | <a href='https://www.cemac.leeds.ac.uk'> CEMAC </a>|
-University of Leeds 2016-2020+</p>
+<p>A file containing all the coordinates which need to be added to a DataSet</p>
+<p>coord_list: nested <em>list</em> with
+(value, standard_name, long_name, units) for each item</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-Improvements and creation of &lt;a href=&#39;https://github.com/wolfiex/AerVis&#39;&gt;this library&lt;/a&gt; by Daniel Ellis.
+<pre><code class="python">&#39;&#39;&#39; 
+A file containing all the coordinates which need to be added to a DataSet
+
+coord_list: nested *list* with  (value, standard_name, long_name, units) for each item
 
 
-Original &lt;a href=&#39;https://github.com/KirstyPringle/UKCA_postproc&#39;&gt;code and concept&lt;/a&gt; developed by Jesus Vergara Temprado and Kirsty Pringle
+&#39;&#39;&#39;
+
+__all__= &#39;coord_list add&#39;.split()
+
+coord_list = [
+# (1000.0,&#39;p0&#39;,&#39;reference_pressure&#39;,&#39;hPa&#39;)
+# (100000.0,&#39;p_convert&#39;,&#39;convert_units&#39;,&#39;Pa&#39;)
+(287.058,&#39;r_specific&#39;,&#39;R_specific&#39;,&#39;J-kilogram^-1-kelvin^-1&#39;),#J/(kg·K)
+(28.991e-3,&#39;molar_mass_air&#39;,&#39;Molar mass of air&#39;,&#39;kilogram-mole^-1&#39;),#J/(kg·K)
+(6.022e23,&#39;avogadro&#39;,&#39;Avogadros number - particles per mol&#39;,&#39;mole^-1&#39;),#J/(kg·K)
+
+]
 
 
-D.Ellis@leeds.ac.uk |
-K.Pringle@leeds.ac.uk |
-eejvt@leeds.ac.uk
-
-Aerosol modellers group |
-Institute for climate and atmospheric science (ICAS) | &lt;a href=&#39;https://www.cemac.leeds.ac.uk&#39;&gt; CEMAC &lt;/a&gt;|
-University of Leeds 2016-2020+
-
-
-&#34;&#34;&#34;
-version = &#39;0.0.2&#39;
-print (&#39;AerVis &#39;+version)
-
-#d = AerData(&#39;bk417a&#39;)</code></pre>
+def add(dataset ,coords:list=coord_list):
+    &#39;&#39;&#39; A function to add / update coordinates of a dataset &#39;&#39;&#39;
+    
+    for c in coords:
+        dataset.coords[c[1]]=c[0]
+        dataset.coords[c[1]].attrs = {&#39;standard_name&#39;:c[2],&#39;units&#39;:c[3]}
+        
+    return dataset
+    
+    
+    </code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></dt>
+<dt id="aervis.conversion.L1.coords.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>dataset, coords: list = [(287.058, 'r_specific', 'R_specific', 'J-kilogram^-1-kelvin^-1'), (0.028991, 'molar_mass_air', 'Molar mass of air', 'kilogram-mole^-1'), (6.022e+23, 'avogadro', 'Avogadros number - particles per mol', 'mole^-1')])</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></dt>
-<dd>
-<div class="desc"></div>
+<div class="desc"><p>A function to add / update coordinates of a dataset</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(dataset ,coords:list=coord_list):
+    &#39;&#39;&#39; A function to add / update coordinates of a dataset &#39;&#39;&#39;
+    
+    for c in coords:
+        dataset.coords[c[1]]=c[0]
+        dataset.coords[c[1]].attrs = {&#39;standard_name&#39;:c[2],&#39;units&#39;:c[3]}
+        
+    return dataset</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -81,10 +97,14 @@ print (&#39;AerVis &#39;+version)
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="aervis.conversion" href="conversion/index.html">aervis.conversion</a></code></li>
-<li><code><a title="aervis.plotting" href="plotting/index.html">aervis.plotting</a></code></li>
+<li><code><a title="aervis.conversion.L1" href="index.html">aervis.conversion.L1</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="aervis.conversion.L1.coords.add" href="#aervis.conversion.L1.coords.add">add</a></code></li>
 </ul>
 </li>
 </ul>

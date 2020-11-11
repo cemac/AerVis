@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>aervis.plotting.compclass API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>aervis.plotting.compclass</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from netCDF4 import Dataset as netcdf_dataset
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib import colorbar,colors,rcParams
+rcParams[&#39;mpl_toolkits.legacy_colorbar&#39;] = False
+import cartopy.crs as ccrs
+from cartopy.mpl.geoaxes import GeoAxes
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from mpl_toolkits.axes_grid1 import AxesGrid
+import numpy as np
+
+class AerComp():
+    &#39;&#39;&#39;
+    The plotting Class
+    &#39;&#39;&#39;
+    def __init__(self,base:str,peturbed:str):
+        &#39;&#39;&#39;
+        Arguments:
+            base - the initial simulation path and filename
+            peturbed - the changes simulation path and filename
+            
+            Both arguments require the full path to the netCDF file we wish to load.
+        &#39;&#39;&#39;
+        
+        self.basename = base.split(&#39;/&#39;)[-1]
+        self.base = netcdf_dataset(base)
+        self.basevars = self.base.variables
+        
+        self.peturbedname = peturbed.split(&#39;/&#39;)[-1]
+        self.peturbed = netcdf_dataset(peturbed)
+        self.peturbedvars = self.base.variables
+        
+        self.varboth = set(self.basevars) &amp; set(self.basevars)
+        
+        
+    def diff_var(self):
+        &#39;&#39;&#39;
+        Return the different variables between each Dataset
+        &#39;&#39;&#39;
+        return list(self.varboth)
+    
+    def dims(self,stashcode:str):
+        &#39;&#39;&#39;
+        Retruns the dimensions of a stashcode variable
+        &#39;&#39;&#39;
+        return {&#39;base&#39;:self.base.variables[stashcode].dimensions,
+        &#39;peturbed&#39;:self.peturbed.variables[stashcode].dimensions}
+            
+    def stashinfo(self, stashcode:str ):
+        
+        if stashcode not in self.varboth:
+            print(&#39;Stashcode %s does not exist in both files&#39;)
+            return None
+        
+        print(&#39;--- %s ---&#39;%stashcode)
+        print (&#39;\tBASE (%s)&#39;%self.basename)
+        what = self.base.variables[stashcode]
+        try: desc = what.long_name
+        except AttributeError:
+            desc = False
+        if not desc:    
+            try: desc = what.standard_name
+            except AttributeError:
+                desc = &#39;none found&#39;
+        print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+        print (&#39;\t\tdims: &#39;+str(what.dimensions))
+        print (&#39;\n&#39;)
+        print (&#39;\tPETURBED (%s)&#39;%self.peturbedname)
+        what = self.peturbed.variables[stashcode]
+        try: desc = what.long_name
+        except AttributeError:
+            desc = False
+        if not desc:    
+            try: desc = what.standard_name
+            except AttributeError:
+                desc = &#39;none found&#39;
+        print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+        print (&#39;\t\tdims: &#39;+str(what.dimensions))
+        
+    def get_vars(self,stashcode:str):
+        &#39;&#39;&#39;
+        Retrieve the variables from each Dataset
+        
+        Arguments:     
+           stashcode:str - the stashcode id
+        Returns:
+            dict: a dictionary containing the variable data with keys {base,perturbed}
+        &#39;&#39;&#39;
+
+        if stashcode not in self.varboth:
+            print(&#39;Stashcode %s does not exist in both files&#39;)
+            return None
+        return {&#39;base&#39;:self.base.variables[stashcode][:],
+                &#39;peturbed&#39;:self.peturbed.variables[stashcode][:]}
+                
+    def gettime(self, which=&#39;base&#39;):
+        &#39;&#39;&#39; 
+        Get the datetime for each value
+        
+        Arguments:
+            &#39;base&#39; or &#39;peturbed&#39;
+            
+        Returns:
+            dict: {key:datetimestr, var:index}
+        &#39;&#39;&#39;
+        from datetime import datetime
+        return dict([[datetime.fromtimestamp(i*60*60).strftime(&#39;%d-%m-%Y %M:%H&#39;),i] for i in getattr(self,which).variables[&#39;time&#39;][:]])
+        
+    
+    def compareplot(self,stashcode:str,params,projection = ccrs.PlateCarree(),cmap = &#39;viridis&#39;,figsize=(20, 10),save = False):
+        
+        &#39;&#39;&#39;
+            stashcode:str - what to plot
+            params:dict - the same params are used for both (base peturbed)
+            params:list[base,peturbed] - individual params are used [base, peturbed]
+
+        &#39;&#39;&#39;
+        
+        if type(params) == dict:
+            baseparams = peturbedparams = params
+        elif type(params) == list:
+            baseparams = params[0]
+            peturbedparams = params[1]
+    
+        maintitle = &#39;%s - base:%s peturbed:%s&#39;%(stashcode,baseparams,peturbedparams)  
+    
+            
+        ### dataset loads ##[]#
+        lats = self.base.variables[&#39;latitude&#39;][:]
+        lons = self.base.variables[&#39;longitude&#39;][:]
+        assert (self.peturbed.variables[&#39;latitude&#39;][:] == lats).all(), &#39;checking if the latitudes match&#39;
+
+        
+        basedata = self.base.variables[stashcode]
+        peturbeddata = self.peturbed.variables[stashcode]
+        
+        dims = self.dims(stashcode)
+        for i in dims[&#39;base&#39;][:-2]:
+            basedata = basedata[baseparams[i]]
+        for i in dims[&#39;peturbed&#39;][:-2]:
+            peturbeddata = peturbeddata[peturbedparams[i]]
+            
+        if basedata.shape != peturbeddata.shape:
+            print(&#39;-- dimensions do not match, check you have supplied all dimensions --&#39;)
+            print (basedata.shape , peturbeddata.shape)
+            self.stashinfo(stashcode)
+            return None
+        
+        
+
+        #### Plot Fn ###
+
+        fig = plt.figure(figsize=figsize)
+        fig.suptitle(maintitle, fontsize=16)
+        
+        
+        axes_class = (GeoAxes,dict(map_projection=projection))
+        axgr = AxesGrid(fig, 111, axes_class=axes_class,
+                        nrows_ncols=(3,2),
+                        axes_pad=0.6,
+                        cbar_location=&#39;bottom&#39;,
+                        cbar_mode=&#39;each&#39;,
+                        cbar_pad=0.5,
+                        cbar_size=&#39;4%&#39;,
+                        label_mode=&#39;&#39;)  # note the empty label_mode
+
+        
+        for i, ax in enumerate(axgr):
+            &#39;&#39;&#39; 
+            Plot each timestep in a new cell
+            &#39;&#39;&#39;
+            ax.coastlines()
+            ax.set_xticks(np.linspace(-180, 180, 5), crs=projection)
+            ax.set_yticks(np.linspace(-90, 90, 5), crs=projection)
+            
+            lon_formatter = LongitudeFormatter(zero_direction_label=True)
+            lat_formatter = LatitudeFormatter()
+            ax.xaxis.set_major_formatter(lon_formatter)
+            ax.yaxis.set_major_formatter(lat_formatter)
+            
+            if i==0: 
+                data = basedata
+                title = &#39;base:  &#39;+self.basename
+            if i==1: 
+                data = peturbeddata
+                title = &#39;peturbed:  &#39;+self.peturbedname
+            if i==2:
+                data = basedata-peturbeddata
+                title = &#39;base - peturbed&#39;
+            if i==3:
+                data = peturbeddata - basedata
+                title = &#39;peturbed - base &#39;
+            if i==4:
+                data = basedata / peturbeddata
+                title = &#39;base / peturbed&#39;
+            if i==5:
+                data = peturbeddata / basedata
+                title = &#39;peturbed / base &#39;
+            
+            p = ax.contourf(lons, lats, data,
+                            transform=projection,
+                            cmap=cmap)
+            
+            axgr.cbar_axes[i].colorbar(p)
+            
+            ax.set_title(title)
+        
+            
+            
+        ### plot or save ### 
+        
+        plt.tight_layout()
+        
+        if save:
+            fn = str(save).replace(&#39;.pdf&#39;,&#39;&#39;)+&#39;.pdf&#39;
+            plt.savefig(fn)
+            print(&#39;saved to :&#39;+fn)
+        else:
+            plt.show()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="aervis.plotting.compclass.AerComp"><code class="flex name class">
+<span>class <span class="ident">AerComp</span></span>
+<span>(</span><span>base: str, peturbed: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The plotting Class</p>
+<h2 id="arguments">Arguments</h2>
+<p>base - the initial simulation path and filename
+peturbed - the changes simulation path and filename</p>
+<p>Both arguments require the full path to the netCDF file we wish to load.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AerComp():
+    &#39;&#39;&#39;
+    The plotting Class
+    &#39;&#39;&#39;
+    def __init__(self,base:str,peturbed:str):
+        &#39;&#39;&#39;
+        Arguments:
+            base - the initial simulation path and filename
+            peturbed - the changes simulation path and filename
+            
+            Both arguments require the full path to the netCDF file we wish to load.
+        &#39;&#39;&#39;
+        
+        self.basename = base.split(&#39;/&#39;)[-1]
+        self.base = netcdf_dataset(base)
+        self.basevars = self.base.variables
+        
+        self.peturbedname = peturbed.split(&#39;/&#39;)[-1]
+        self.peturbed = netcdf_dataset(peturbed)
+        self.peturbedvars = self.base.variables
+        
+        self.varboth = set(self.basevars) &amp; set(self.basevars)
+        
+        
+    def diff_var(self):
+        &#39;&#39;&#39;
+        Return the different variables between each Dataset
+        &#39;&#39;&#39;
+        return list(self.varboth)
+    
+    def dims(self,stashcode:str):
+        &#39;&#39;&#39;
+        Retruns the dimensions of a stashcode variable
+        &#39;&#39;&#39;
+        return {&#39;base&#39;:self.base.variables[stashcode].dimensions,
+        &#39;peturbed&#39;:self.peturbed.variables[stashcode].dimensions}
+            
+    def stashinfo(self, stashcode:str ):
+        
+        if stashcode not in self.varboth:
+            print(&#39;Stashcode %s does not exist in both files&#39;)
+            return None
+        
+        print(&#39;--- %s ---&#39;%stashcode)
+        print (&#39;\tBASE (%s)&#39;%self.basename)
+        what = self.base.variables[stashcode]
+        try: desc = what.long_name
+        except AttributeError:
+            desc = False
+        if not desc:    
+            try: desc = what.standard_name
+            except AttributeError:
+                desc = &#39;none found&#39;
+        print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+        print (&#39;\t\tdims: &#39;+str(what.dimensions))
+        print (&#39;\n&#39;)
+        print (&#39;\tPETURBED (%s)&#39;%self.peturbedname)
+        what = self.peturbed.variables[stashcode]
+        try: desc = what.long_name
+        except AttributeError:
+            desc = False
+        if not desc:    
+            try: desc = what.standard_name
+            except AttributeError:
+                desc = &#39;none found&#39;
+        print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+        print (&#39;\t\tdims: &#39;+str(what.dimensions))
+        
+    def get_vars(self,stashcode:str):
+        &#39;&#39;&#39;
+        Retrieve the variables from each Dataset
+        
+        Arguments:     
+           stashcode:str - the stashcode id
+        Returns:
+            dict: a dictionary containing the variable data with keys {base,perturbed}
+        &#39;&#39;&#39;
+
+        if stashcode not in self.varboth:
+            print(&#39;Stashcode %s does not exist in both files&#39;)
+            return None
+        return {&#39;base&#39;:self.base.variables[stashcode][:],
+                &#39;peturbed&#39;:self.peturbed.variables[stashcode][:]}
+                
+    def gettime(self, which=&#39;base&#39;):
+        &#39;&#39;&#39; 
+        Get the datetime for each value
+        
+        Arguments:
+            &#39;base&#39; or &#39;peturbed&#39;
+            
+        Returns:
+            dict: {key:datetimestr, var:index}
+        &#39;&#39;&#39;
+        from datetime import datetime
+        return dict([[datetime.fromtimestamp(i*60*60).strftime(&#39;%d-%m-%Y %M:%H&#39;),i] for i in getattr(self,which).variables[&#39;time&#39;][:]])
+        
+    
+    def compareplot(self,stashcode:str,params,projection = ccrs.PlateCarree(),cmap = &#39;viridis&#39;,figsize=(20, 10),save = False):
+        
+        &#39;&#39;&#39;
+            stashcode:str - what to plot
+            params:dict - the same params are used for both (base peturbed)
+            params:list[base,peturbed] - individual params are used [base, peturbed]
+
+        &#39;&#39;&#39;
+        
+        if type(params) == dict:
+            baseparams = peturbedparams = params
+        elif type(params) == list:
+            baseparams = params[0]
+            peturbedparams = params[1]
+    
+        maintitle = &#39;%s - base:%s peturbed:%s&#39;%(stashcode,baseparams,peturbedparams)  
+    
+            
+        ### dataset loads ##[]#
+        lats = self.base.variables[&#39;latitude&#39;][:]
+        lons = self.base.variables[&#39;longitude&#39;][:]
+        assert (self.peturbed.variables[&#39;latitude&#39;][:] == lats).all(), &#39;checking if the latitudes match&#39;
+
+        
+        basedata = self.base.variables[stashcode]
+        peturbeddata = self.peturbed.variables[stashcode]
+        
+        dims = self.dims(stashcode)
+        for i in dims[&#39;base&#39;][:-2]:
+            basedata = basedata[baseparams[i]]
+        for i in dims[&#39;peturbed&#39;][:-2]:
+            peturbeddata = peturbeddata[peturbedparams[i]]
+            
+        if basedata.shape != peturbeddata.shape:
+            print(&#39;-- dimensions do not match, check you have supplied all dimensions --&#39;)
+            print (basedata.shape , peturbeddata.shape)
+            self.stashinfo(stashcode)
+            return None
+        
+        
+
+        #### Plot Fn ###
+
+        fig = plt.figure(figsize=figsize)
+        fig.suptitle(maintitle, fontsize=16)
+        
+        
+        axes_class = (GeoAxes,dict(map_projection=projection))
+        axgr = AxesGrid(fig, 111, axes_class=axes_class,
+                        nrows_ncols=(3,2),
+                        axes_pad=0.6,
+                        cbar_location=&#39;bottom&#39;,
+                        cbar_mode=&#39;each&#39;,
+                        cbar_pad=0.5,
+                        cbar_size=&#39;4%&#39;,
+                        label_mode=&#39;&#39;)  # note the empty label_mode
+
+        
+        for i, ax in enumerate(axgr):
+            &#39;&#39;&#39; 
+            Plot each timestep in a new cell
+            &#39;&#39;&#39;
+            ax.coastlines()
+            ax.set_xticks(np.linspace(-180, 180, 5), crs=projection)
+            ax.set_yticks(np.linspace(-90, 90, 5), crs=projection)
+            
+            lon_formatter = LongitudeFormatter(zero_direction_label=True)
+            lat_formatter = LatitudeFormatter()
+            ax.xaxis.set_major_formatter(lon_formatter)
+            ax.yaxis.set_major_formatter(lat_formatter)
+            
+            if i==0: 
+                data = basedata
+                title = &#39;base:  &#39;+self.basename
+            if i==1: 
+                data = peturbeddata
+                title = &#39;peturbed:  &#39;+self.peturbedname
+            if i==2:
+                data = basedata-peturbeddata
+                title = &#39;base - peturbed&#39;
+            if i==3:
+                data = peturbeddata - basedata
+                title = &#39;peturbed - base &#39;
+            if i==4:
+                data = basedata / peturbeddata
+                title = &#39;base / peturbed&#39;
+            if i==5:
+                data = peturbeddata / basedata
+                title = &#39;peturbed / base &#39;
+            
+            p = ax.contourf(lons, lats, data,
+                            transform=projection,
+                            cmap=cmap)
+            
+            axgr.cbar_axes[i].colorbar(p)
+            
+            ax.set_title(title)
+        
+            
+            
+        ### plot or save ### 
+        
+        plt.tight_layout()
+        
+        if save:
+            fn = str(save).replace(&#39;.pdf&#39;,&#39;&#39;)+&#39;.pdf&#39;
+            plt.savefig(fn)
+            print(&#39;saved to :&#39;+fn)
+        else:
+            plt.show()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="aervis.plotting.compclass.AerComp.compareplot"><code class="name flex">
+<span>def <span class="ident">compareplot</span></span>(<span>self, stashcode: str, params, projection=&lt;cartopy.crs.PlateCarree object&gt;, cmap='viridis', figsize=(20, 10), save=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>stashcode:str - what to plot
+params:dict - the same params are used for both (base peturbed)
+params:list[base,peturbed] - individual params are used [base, peturbed]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compareplot(self,stashcode:str,params,projection = ccrs.PlateCarree(),cmap = &#39;viridis&#39;,figsize=(20, 10),save = False):
+    
+    &#39;&#39;&#39;
+        stashcode:str - what to plot
+        params:dict - the same params are used for both (base peturbed)
+        params:list[base,peturbed] - individual params are used [base, peturbed]
+
+    &#39;&#39;&#39;
+    
+    if type(params) == dict:
+        baseparams = peturbedparams = params
+    elif type(params) == list:
+        baseparams = params[0]
+        peturbedparams = params[1]
+
+    maintitle = &#39;%s - base:%s peturbed:%s&#39;%(stashcode,baseparams,peturbedparams)  
+
+        
+    ### dataset loads ##[]#
+    lats = self.base.variables[&#39;latitude&#39;][:]
+    lons = self.base.variables[&#39;longitude&#39;][:]
+    assert (self.peturbed.variables[&#39;latitude&#39;][:] == lats).all(), &#39;checking if the latitudes match&#39;
+
+    
+    basedata = self.base.variables[stashcode]
+    peturbeddata = self.peturbed.variables[stashcode]
+    
+    dims = self.dims(stashcode)
+    for i in dims[&#39;base&#39;][:-2]:
+        basedata = basedata[baseparams[i]]
+    for i in dims[&#39;peturbed&#39;][:-2]:
+        peturbeddata = peturbeddata[peturbedparams[i]]
+        
+    if basedata.shape != peturbeddata.shape:
+        print(&#39;-- dimensions do not match, check you have supplied all dimensions --&#39;)
+        print (basedata.shape , peturbeddata.shape)
+        self.stashinfo(stashcode)
+        return None
+    
+    
+
+    #### Plot Fn ###
+
+    fig = plt.figure(figsize=figsize)
+    fig.suptitle(maintitle, fontsize=16)
+    
+    
+    axes_class = (GeoAxes,dict(map_projection=projection))
+    axgr = AxesGrid(fig, 111, axes_class=axes_class,
+                    nrows_ncols=(3,2),
+                    axes_pad=0.6,
+                    cbar_location=&#39;bottom&#39;,
+                    cbar_mode=&#39;each&#39;,
+                    cbar_pad=0.5,
+                    cbar_size=&#39;4%&#39;,
+                    label_mode=&#39;&#39;)  # note the empty label_mode
+
+    
+    for i, ax in enumerate(axgr):
+        &#39;&#39;&#39; 
+        Plot each timestep in a new cell
+        &#39;&#39;&#39;
+        ax.coastlines()
+        ax.set_xticks(np.linspace(-180, 180, 5), crs=projection)
+        ax.set_yticks(np.linspace(-90, 90, 5), crs=projection)
+        
+        lon_formatter = LongitudeFormatter(zero_direction_label=True)
+        lat_formatter = LatitudeFormatter()
+        ax.xaxis.set_major_formatter(lon_formatter)
+        ax.yaxis.set_major_formatter(lat_formatter)
+        
+        if i==0: 
+            data = basedata
+            title = &#39;base:  &#39;+self.basename
+        if i==1: 
+            data = peturbeddata
+            title = &#39;peturbed:  &#39;+self.peturbedname
+        if i==2:
+            data = basedata-peturbeddata
+            title = &#39;base - peturbed&#39;
+        if i==3:
+            data = peturbeddata - basedata
+            title = &#39;peturbed - base &#39;
+        if i==4:
+            data = basedata / peturbeddata
+            title = &#39;base / peturbed&#39;
+        if i==5:
+            data = peturbeddata / basedata
+            title = &#39;peturbed / base &#39;
+        
+        p = ax.contourf(lons, lats, data,
+                        transform=projection,
+                        cmap=cmap)
+        
+        axgr.cbar_axes[i].colorbar(p)
+        
+        ax.set_title(title)
+    
+        
+        
+    ### plot or save ### 
+    
+    plt.tight_layout()
+    
+    if save:
+        fn = str(save).replace(&#39;.pdf&#39;,&#39;&#39;)+&#39;.pdf&#39;
+        plt.savefig(fn)
+        print(&#39;saved to :&#39;+fn)
+    else:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="aervis.plotting.compclass.AerComp.diff_var"><code class="name flex">
+<span>def <span class="ident">diff_var</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the different variables between each Dataset</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def diff_var(self):
+    &#39;&#39;&#39;
+    Return the different variables between each Dataset
+    &#39;&#39;&#39;
+    return list(self.varboth)</code></pre>
+</details>
+</dd>
+<dt id="aervis.plotting.compclass.AerComp.dims"><code class="name flex">
+<span>def <span class="ident">dims</span></span>(<span>self, stashcode: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retruns the dimensions of a stashcode variable</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dims(self,stashcode:str):
+    &#39;&#39;&#39;
+    Retruns the dimensions of a stashcode variable
+    &#39;&#39;&#39;
+    return {&#39;base&#39;:self.base.variables[stashcode].dimensions,
+    &#39;peturbed&#39;:self.peturbed.variables[stashcode].dimensions}</code></pre>
+</details>
+</dd>
+<dt id="aervis.plotting.compclass.AerComp.get_vars"><code class="name flex">
+<span>def <span class="ident">get_vars</span></span>(<span>self, stashcode: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrieve the variables from each Dataset</p>
+<p>Arguments:
+<br>
+stashcode:str - the stashcode id</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>a dictionary containing the variable data with keys {base,perturbed}</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_vars(self,stashcode:str):
+    &#39;&#39;&#39;
+    Retrieve the variables from each Dataset
+    
+    Arguments:     
+       stashcode:str - the stashcode id
+    Returns:
+        dict: a dictionary containing the variable data with keys {base,perturbed}
+    &#39;&#39;&#39;
+
+    if stashcode not in self.varboth:
+        print(&#39;Stashcode %s does not exist in both files&#39;)
+        return None
+    return {&#39;base&#39;:self.base.variables[stashcode][:],
+            &#39;peturbed&#39;:self.peturbed.variables[stashcode][:]}</code></pre>
+</details>
+</dd>
+<dt id="aervis.plotting.compclass.AerComp.gettime"><code class="name flex">
+<span>def <span class="ident">gettime</span></span>(<span>self, which='base')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the datetime for each value</p>
+<h2 id="arguments">Arguments</h2>
+<p>'base' or 'peturbed'</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>{key:datetimestr, var:index}</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gettime(self, which=&#39;base&#39;):
+    &#39;&#39;&#39; 
+    Get the datetime for each value
+    
+    Arguments:
+        &#39;base&#39; or &#39;peturbed&#39;
+        
+    Returns:
+        dict: {key:datetimestr, var:index}
+    &#39;&#39;&#39;
+    from datetime import datetime
+    return dict([[datetime.fromtimestamp(i*60*60).strftime(&#39;%d-%m-%Y %M:%H&#39;),i] for i in getattr(self,which).variables[&#39;time&#39;][:]])</code></pre>
+</details>
+</dd>
+<dt id="aervis.plotting.compclass.AerComp.stashinfo"><code class="name flex">
+<span>def <span class="ident">stashinfo</span></span>(<span>self, stashcode: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stashinfo(self, stashcode:str ):
+    
+    if stashcode not in self.varboth:
+        print(&#39;Stashcode %s does not exist in both files&#39;)
+        return None
+    
+    print(&#39;--- %s ---&#39;%stashcode)
+    print (&#39;\tBASE (%s)&#39;%self.basename)
+    what = self.base.variables[stashcode]
+    try: desc = what.long_name
+    except AttributeError:
+        desc = False
+    if not desc:    
+        try: desc = what.standard_name
+        except AttributeError:
+            desc = &#39;none found&#39;
+    print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+    print (&#39;\t\tdims: &#39;+str(what.dimensions))
+    print (&#39;\n&#39;)
+    print (&#39;\tPETURBED (%s)&#39;%self.peturbedname)
+    what = self.peturbed.variables[stashcode]
+    try: desc = what.long_name
+    except AttributeError:
+        desc = False
+    if not desc:    
+        try: desc = what.standard_name
+        except AttributeError:
+            desc = &#39;none found&#39;
+    print (&#39;\t\tdescription: &#39;+desc.replace(&#39;_&#39;,&#39; &#39;))
+    print (&#39;\t\tdims: &#39;+str(what.dimensions))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="aervis.plotting" href="index.html">aervis.plotting</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="aervis.plotting.compclass.AerComp" href="#aervis.plotting.compclass.AerComp">AerComp</a></code></h4>
+<ul class="two-column">
+<li><code><a title="aervis.plotting.compclass.AerComp.compareplot" href="#aervis.plotting.compclass.AerComp.compareplot">compareplot</a></code></li>
+<li><code><a title="aervis.plotting.compclass.AerComp.diff_var" href="#aervis.plotting.compclass.AerComp.diff_var">diff_var</a></code></li>
+<li><code><a title="aervis.plotting.compclass.AerComp.dims" href="#aervis.plotting.compclass.AerComp.dims">dims</a></code></li>
+<li><code><a title="aervis.plotting.compclass.AerComp.get_vars" href="#aervis.plotting.compclass.AerComp.get_vars">get_vars</a></code></li>
+<li><code><a title="aervis.plotting.compclass.AerComp.gettime" href="#aervis.plotting.compclass.AerComp.gettime">gettime</a></code></li>
+<li><code><a title="aervis.plotting.compclass.AerComp.stashinfo" href="#aervis.plotting.compclass.AerComp.stashinfo">stashinfo</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
